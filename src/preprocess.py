@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lib import dataWrangler as wrangler
 
+
 def _cqt(config, filePath):
     timeSeries, sampleRate = lr.load(filePath)
     return lr.cqt(

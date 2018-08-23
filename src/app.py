@@ -26,7 +26,10 @@ if __name__ == "__main__":
         --> Output np arrays of transformed signals
     """
 
+    #
     # Hardcoded
+    #
+
     MODE = 'PREPROCESS'
     TRANSFORM_TYPE = 'CQT'
     # DATASET_PATH = "datasets/ISOL/CH/MAPS_ISOL_CH0.1_F_SptkBGAm.wav"
@@ -38,3 +41,4 @@ if __name__ == "__main__":
             TRANSFORM_TYPE,
             DATASET_PATH
         )
+
