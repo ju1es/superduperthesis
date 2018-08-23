@@ -1,8 +1,12 @@
 # Ignore files
 .DS_Store
+__pycache__/
 
 # Ignore folders
 datasets/
+training_sets/
 .idea/
+venv/
+
 
 # Ignore types of files

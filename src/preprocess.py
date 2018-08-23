@@ -3,25 +3,43 @@ import librosa as lr
 import librosa.display as display
 import numpy as np
 import matplotlib.pyplot as plt
+from lib import dataWrangler as wrangler
 
-TEST_DATAPOINT = './datasets/Testing/MAPS_RAND_P2_M21-108_I32-96_S0_n12_SptkBGAm.wav'
+def _cqt(config, filePath):
+    timeSeries, sampleRate = lr.load(filePath)
+    return lr.cqt(
+        timeSeries,
+        fmin=lr.midi_to_hz(config['FREQ_MIN']),
+        sr=sampleRate,
+        hop_length=config['HOP_LENGTH'],
+        bins_per_octave=config['BINS_PER_8VE'],
+        n_bins=config['N_BINS_TOTAL']
+    )
 
-def test_cqt():
-    # Load datapoint
-    timeSeries, sampleRate = lr.load(TEST_DATAPOINT)
-    cqtSpect = lr.cqt(timeSeries,
-                      fmin=lr.midi_to_hz(21),
-                      sr=sampleRate,
-                      hop_length=512,
-                      bins_per_octave=24,
-                      n_bins=24 * 8)
-    lr.display.specshow(lr.amplitude_to_db(cqtSpect, ref=np.max),
-                        sr=sampleRate,
-                        x_axis='time',
-                        y_axis='cqt_note',
-                        fmin=lr.midi_to_hz(21),
-                        bins_per_octave=24)
-    plt.colorbar(format='%+2.0f dB')
-    plt.title('Constant-Q power spectrum')
-    # plt.tight_layout()
-    plt.show()
+
+def _apply_cqt(config, datasetPath):
+    '''
+    Fetches datapoints. Applies CQT. Outputs to training dir.
+
+    Params
+    ------
+    config : dict
+        Sets CQT spec.
+
+    dataset_path : str
+        Root of dataset to traverse.
+
+    Returns
+    -------
+    void
+    '''
+    datapointsPaths = wrangler.fetchPaths(datasetPath)
+    for path in datapointsPaths:
+        cqt_spect = _cqt(config['CQT'], path)
+        wrangler.saveToTraining(config, cqt_spect, path)
+
+
+def run(config, type, datasetPath):
+    if type == 'CQT':
+        print("\nRunning CQT...\n")
+        _apply_cqt(config, datasetPath)
