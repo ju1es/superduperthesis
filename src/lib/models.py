@@ -5,7 +5,7 @@ from keras.layers.normalization import BatchNormalization
 def baseline_cnn(inputShape):
     input = Input(inputShape)
     # reshape?
-    # --> 
+    # -->
 
     #
     # 32 filters

@@ -31,7 +31,7 @@ if __name__ == "__main__":
     #
 
     MODE = 'PREPROCESS'
-    TRANSFORM_TYPE = 'CQT'
+    TRANSFORM_TYPE = 'STFTTRI'
     # DATASET_PATH = "datasets/ISOL/CH/MAPS_ISOL_CH0.1_F_SptkBGAm.wav"
     DATASET_PATH = "datasets/ISOL/CH"
 
