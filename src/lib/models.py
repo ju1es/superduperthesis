@@ -3,19 +3,28 @@ from keras.layers import Dense, Dropout, Input, Conv2D, Maxpooling2D, AveragePoo
 from keras.layers.normalization import BatchNormalization
 
 def baseline_cnn(inputShape):
+    # Layers
     input = Input(inputShape)
-    # reshape?
-    # -->
+    reshape = Reshape(inputShapeDimensions)(input)
+    conv1 = Conv2D(32, (3, 3), activation='relu')(reshape)
 
-    #
-    # 32 filters
-    # 3x3
-    #
+    # NOTE: WINDOW_SIZE not present
+    zeroPad = ZeroPadding2D(padding=(WINDOW_SIZE // 2, WINDOW_SIZE // 2))(conv1)
 
-    conv1 = Conv2D(32, (3, 3), activation='relu')(input)
-    conv2 = Conv2D(32, (3, 3), activations='relu')(conv2)
+    # OLD
+    # conv2 = Conv2D(32, (3, 3), activation='relu')(zeroPad)
+    # batchNorm = BatchNormalization()(conv2)
+
+    # Add linear conv layer
+    conv2 = Conv2D(32, (3, 3))(zeroPad)
+
+    # Apply batch norm
     batchNorm = BatchNormalization()(conv2)
-    maxPool1 = MaxPooling2D(pool_size=(1, 2))(batchNorm)
+
+    # Then activation layer
+    nonlinAct = Activation('relu')(batchNorm)
+
+    maxPool1 = MaxPooling2D(pool_size=(1, 2))(nonlinAct)
     dropOut1 = Dropout(0.25)(maxPool1)
     conv3 = Conv2D(64, (3, 3), activation='relu')(dropOut1)
     maxPool2 = MaxPooling2D(pool_size=(1, 2))(conv3)
