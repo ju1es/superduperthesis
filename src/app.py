@@ -39,6 +39,5 @@ if __name__ == "__main__":
         pre.run(
             DEFAULT_CONFIG['MODE']['PREPROCESS'],
             TRANSFORM_TYPE,
-            DATASET_PATH
-        )
+            DATASET_PATH)
 

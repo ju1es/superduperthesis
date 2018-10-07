@@ -8,6 +8,8 @@ training_sets/
 .idea/
 venv/
 .ipynb_checkpoints/
-
+test_inputs/
+test_outputs/
+test_trained_models/
 
 # Ignore types of files
