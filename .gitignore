@@ -1,10 +1,12 @@
 # Ignore files
 .DS_Store
 __pycache__/
+*.pyc
+*.h5
 
 # Ignore folders
 datasets/
-training_sets/
+splits/
 .idea/
 venv/
 .ipynb_checkpoints/

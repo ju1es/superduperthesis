@@ -5,6 +5,7 @@ from configs import DEFAULT_CONFIG
 if __name__ == "__main__":
     print("\nTRANSCRIBE ALL THE MUSIC.\n")
     """
+    OLD Interface
     + Ingest config-type from command line
         --> MODE
             | PREPROCESS
@@ -24,6 +25,27 @@ if __name__ == "__main__":
                 + ...
     + PREPROCESS
         --> Output np arrays of transformed signals
+    """
+
+    """
+    NEW Interface
+    
+    Ex: python app.py -c config2 -t logfilt -m baseline
+    
+    + Mode
+      --> Preprocess
+      --> Train/Evaluate
+      --> Postprocess
+    + Model
+      --> Sets type of transform
+      --> Sets which model to train/predict
+      --> Sets which model to postprocess predictions?
+    
+    i.e. preprocess + config1_logfilt_baseline 
+    = split data based on config1 for baseline model using logfilters
+    
+    i.e. train/eval + config1_logfilt_baseline
+    = checks that data has been preprocessed, then trains/evals baseline model
     """
 
     #
