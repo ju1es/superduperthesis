@@ -1,6 +1,7 @@
 '''
 Notes:
     + Hardcoded baseline args.
+    + Hardcoded epochs.
 '''
 import sys
 import os
@@ -73,7 +74,7 @@ def run(config, args, experiment_id):
         history = model.fit_generator(
                     generator=train_gen,
                     validation_data=val_gen,
-                    epochs=1, # Hardcoded
+                    epochs=150, # Hardcoded
                     use_multiprocessing=True,
                     workers=6,
                     verbose=1,
