@@ -1,34 +1,32 @@
 from keras.models import Model
-from keras.layers import Dense, Dropout, Input, Conv2D, Maxpooling2D, AveragePooling2D
+from keras.layers import Dense, Dropout, Input, Conv2D
+from keras.layers import Maxpooling2D, AveragePooling2D, Flatten
 from keras.layers.normalization import BatchNormalization
 
-def baseline_cnn(inputShape):
+def baseline_cnn(inputShape, window_size):
     # Layers
     input = Input(inputShape)
     reshape = Reshape(inputShapeDimensions)(input)
+
     conv1 = Conv2D(32, (3, 3), activation='relu')(reshape)
-
-    # NOTE: WINDOW_SIZE not present
-    zeroPad = ZeroPadding2D(padding=(WINDOW_SIZE // 2, WINDOW_SIZE // 2))(conv1)
-
-    # OLD
-    # conv2 = Conv2D(32, (3, 3), activation='relu')(zeroPad)
-    # batchNorm = BatchNormalization()(conv2)
+    zeroPad = ZeroPadding2D(padding=(window_size // 2, window_size // 2))(conv1)
 
     # Add linear conv layer
     conv2 = Conv2D(32, (3, 3))(zeroPad)
-
     # Apply batch norm
     batchNorm = BatchNormalization()(conv2)
-
     # Then activation layer
     nonlinAct = Activation('relu')(batchNorm)
 
     maxPool1 = MaxPooling2D(pool_size=(1, 2))(nonlinAct)
     dropOut1 = Dropout(0.25)(maxPool1)
+
     conv3 = Conv2D(64, (3, 3), activation='relu')(dropOut1)
+
     maxPool2 = MaxPooling2D(pool_size=(1, 2))(conv3)
-    dropOut2 = Dropout(0.25)(maxPool2)
+
+    flatten = Flatten()(maxPool2)
+    dropOut2 = Dropout(0.25)(flatten)
     dense1 = Dense(512, activation='relu')(dropOut2)
     dropOut3 = Dropout(0.5)(dense1)
     output = Dense(88, activation='relu')(dropOut3)

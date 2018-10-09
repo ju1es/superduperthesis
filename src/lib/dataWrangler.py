@@ -1,6 +1,19 @@
 import os
 import numpy as np
 
+def save_mm(path, datapoint):
+    '''
+    Save datapoint to specified path
+    :param path: str - path.
+    :param datapoint: np array - datapoint.
+    '''
+    mm_datapoint = np.memmap(
+                        filename=path,
+                        mode='w+',
+                        shape=datapoint.shape)
+    mm_datapoint[:] = datapoint[:]
+    del mm_datapoint
+
 def fetchPaths(datasetPath):
     paths = []
     for root, dirs, files in os.walk(datasetPath):
