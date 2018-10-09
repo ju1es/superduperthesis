@@ -13,6 +13,9 @@ from lib import dataWrangler as wrangler
 
 SPLITS_DIR = 'splits/'
 
+# Hack for PPQ from MAPS
+pm.pretty_midi.MAX_TICK = 1e10
+
 def _create_dest_dirs(experiment_id):
     '''
     Creates model's specific train and test directories.
