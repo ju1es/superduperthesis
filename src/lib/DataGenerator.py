@@ -19,7 +19,7 @@ def read_mm(data_dir, type, ID):
 
 
 class DataGenerator(keras.utils.Sequence):
-    def __init__(self, model_data_dir, data_type, list_IDs, batch_size=256, shuffle=True):
+    def __init__(self, model_data_dir, data_type, list_IDs, batch_size=32, shuffle=True):
         self.model_data_dir = model_data_dir  # Denotes specific train/val/test for a given model
         self.data_type = data_type            # Denotes train, val, or test
         self.list_IDs = list_IDs
