@@ -5,6 +5,7 @@ __pycache__/
 *.h5
 
 # Ignore folders
+results/
 datasets/
 splits/
 .idea/
