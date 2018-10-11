@@ -41,15 +41,15 @@ if __name__ == "__main__":
 
     # Shuffle track_paths and get % and re-calculate total num and size of tracks
     np.random.shuffle(track_paths)
-    split_index = int(len(track_paths) * 0.10)
+    split_index = int(len(track_paths) * 0.05)
     track_paths = track_paths[:split_index]
     total_size = 0
     for path in track_paths:
         total_size += os.path.getsize(path)
 
-    print "Total train tracks: " + str(len(track_paths))
+    print "Total sampled train tracks: " + str(len(track_paths))
     total_size = total_size / 1000000.0
-    print "Total train size (MB): " + str(total_size)
+    print "Total sampled train size (MB): " + str(total_size)
 
 
 
