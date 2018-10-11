@@ -4,6 +4,7 @@ sampleMaps - Gets random ~250mb of MAPs data
 
 '''
 import os
+import numpy as np
 
 DATASET_DIR = './datasets/maps'
 TEST_DIRS = ['ENSTDkAm', 'ENSTDkCl']
@@ -19,7 +20,6 @@ if __name__ == "__main__":
     
     Randomly sample X% and copy .wav, .txt, and .midi to sampleMaps/train
     '''
-    num_tracks = 0
     total_size = 0
     track_paths = []
     for subdir_name in os.listdir(DATASET_DIR):
@@ -31,14 +31,27 @@ if __name__ == "__main__":
         for dir_parent, dir_name, file_names in os.walk(subdir_path):
             for name in file_names:
                 if name.endswith('.wav'):
-                    num_tracks += 1
                     track_path = os.path.join(dir_parent, name)
                     total_size += os.path.getsize(track_path)
                     track_paths.append(track_path)
 
-    print "Total train tracks: " + str(num_tracks)
+    print "Total train tracks: " + str(len(track_paths))
     total_size = total_size / 1000000.0
     print "Total train size (MB): " + str(total_size)
+
+    # Shuffle track_paths and get % and re-calculate total num and size of tracks
+    np.random.shuffle(track_paths)
+    split_index = int(len(track_paths) * 0.10)
+    track_paths = track_paths[:split_index]
+    total_size = 0
+    for path in track_paths:
+        total_size += os.path.getsize(path)
+
+    print "Total train tracks: " + str(len(track_paths))
+    total_size = total_size / 1000000.0
+    print "Total train size (MB): " + str(total_size)
+
+
 
     '''
     Traverse (ENSTDkAm, ENSTDkCl) for Test Separately
