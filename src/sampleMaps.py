@@ -42,9 +42,9 @@ if __name__ == "__main__":
                     txt_name = track_name + '.txt'
 
                     if midi_name in file_names:
-                        track_wav_paths = os.path.join(dir_parent, name)
-                        total_size += os.path.getsize(track_wav_paths)
-                        track_wav_paths.append(track_wav_paths)
+                        track_path = os.path.join(dir_parent, name)
+                        total_size += os.path.getsize(track_path)
+                        track_wav_paths.append(track_path)
                         track_midi_paths.append(os.path.join(dir_parent, midi_name))
                         track_txt_paths.append(os.path.join(dir_parent, txt_name))
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # Shuffle track_paths and get % and re-calculate total num and size of tracks
     np.random.shuffle(track_wav_paths)
-    split_index = int(len(track_paths) * 0.02)
+    split_index = int(len(track_wav_paths) * 0.02)
     track_wav_paths = track_wav_paths[:split_index]
     total_size = 0
     for path in track_wav_paths:
