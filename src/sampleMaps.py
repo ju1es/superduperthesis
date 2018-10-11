@@ -50,6 +50,7 @@ if __name__ == "__main__":
     print "Total sampled train tracks: " + str(len(track_paths))
     total_size = total_size / 1000000.0
     print "Total sampled train size (MB): " + str(total_size)
+    print track_paths[:20]
 
 
 
