@@ -8,11 +8,20 @@ import numpy as np
 import shutil
 
 DATASET_DIR = './datasets/maps'
-MAPS_SUBSET_CONFIG_2_DIR_TRAIN = './datasets/maps_subset_config2/train'
-MAPS_SUBSET_CONFIG_2_DIR_TEST = './datasets/maps_subset_config2/test'
+MAPS_SUBSET_CONFIG_2_DIR = './datasets/maps_subset_config2/'
+MAPS_SUBSET_CONFIG_2_DIR_TRAIN = os.path.join(MAPS_SUBSET_CONFIG_2_DIR, 'train')
+MAPS_SUBSET_CONFIG_2_DIR_TEST = os.path.join(MAPS_SUBSET_CONFIG_2_DIR, 'test')
 TEST_DIRS = ['ENSTDkAm', 'ENSTDkCl']
 
 if __name__ == "__main__":
+
+    # Setup directories
+    if not os.path.exists(MAPS_SUBSET_CONFIG_2_DIR):
+        os.mkdir(MAPS_SUBSET_CONFIG_2_DIR)
+    if not os.path.exists(MAPS_SUBSET_CONFIG_2_DIR_TRAIN):
+        os.mkdir(MAPS_SUBSET_CONFIG_2_DIR_TRAIN)
+    if not os.path.exists(MAPS_SUBSET_CONFIG_2_DIR_TEST):
+        os.mkdir(MAPS_SUBSET_CONFIG_2_DIR_TEST)
 
     '''
     Traverse (...) for Train Separately
@@ -54,7 +63,7 @@ if __name__ == "__main__":
 
     # Shuffle track_paths and get % and re-calculate total num and size of tracks
     np.random.shuffle(track_wav_paths)
-    split_index = int(len(track_wav_paths) * 0.01)
+    split_index = int(len(track_wav_paths) * 0.05)
     track_wav_paths = track_wav_paths[:split_index]
     total_size = 0
     for path in track_wav_paths:
