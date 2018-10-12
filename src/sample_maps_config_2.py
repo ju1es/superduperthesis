@@ -119,7 +119,19 @@ if __name__ == "__main__":
     total_size = total_size / 1000000.0
     print "Total test size (MB): " + str(total_size)
 
-    files_to_copy = track_paths + track_midi_paths + track_txt_paths
+    # Shuffle track_wav_paths
+    np.random.shuffle(track_wav_paths)
+    split_index = int(len(track_wav_paths) * SAMPLE_PERCENTAGE)
+    track_wav_paths = track_wav_paths[:split_index]
+    total_size = 0
+    for path in track_wav_paths:
+        total_size += os.path.getsize(path)
+
+    print "Total sampled test tracks: " + str(len(track_wav_paths))
+    total_size = total_size / 1000000.0
+    print "Total sampled test size (MB): " + str(total_size)
+
+    files_to_copy = track_wav_paths + track_midi_paths + track_txt_paths
     for path in files_to_copy:
         shutil.copy(path, MAPS_SUBSET_CONFIG_2_DIR_TEST)
 
