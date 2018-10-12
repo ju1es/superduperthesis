@@ -115,7 +115,7 @@ if __name__ == "__main__":
                     track_midi_paths.append(os.path.join(dir_parent, midi_name))
                     track_txt_paths.append(os.path.join(dir_parent, txt_name))
 
-    print "\nTotal test tracks: " + str(track_wav_paths)
+    print "\nTotal test tracks: " + str(len(rack_wav_paths))
     total_size = total_size / 1000000.0
     print "Total test size (MB): " + str(total_size)
 
