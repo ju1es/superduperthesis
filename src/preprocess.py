@@ -199,6 +199,62 @@ def _preprocess_config2(config, args, paths, id):
                         wrangler.save_mm(output_path, np_output)
 
 
+def _preprocess_config2_subset(config, args, paths, id):
+    '''
+    Generates processed .wav's and ground truths in experiment directory.
+    :param config: dict - config.
+    :param args: namespace - passed in during execution.
+    :param paths: dict - train, val, test directories for experiment.
+    :param id: str - unique id of experiment.
+    '''
+
+    # Preprocess from the subset dir
+    for subdir_name in os.listdir(config['SUBSET_MAPS_DIR']):
+        subdir_path = os.path.join(config['SUBSET_MAPS_DIR'], subdir_name)
+
+        # Check if directory and not file.
+        if not os.path.isdir(subdir_path):
+            continue
+
+        # Find all .wavs
+        for dir_parent, _, file_names in os.walk(subdir_path):
+            for name in file_names:
+                if name.endswith('.wav'):
+                    track_name = name.split('.wav')[0]
+                    midi_name = track_name + '.mid'
+
+                    if midi_name in file_names:
+                        track_path = os.path.join(dir_parent, name)
+                        midi_path = os.path.join(dir_parent, midi_name)
+
+                ### DELETE ###
+                        print "Processing " + track_path
+
+                        # Transform and Generate ground truth
+                        sr = _get_sample_rate(config['TRANSFORMS'], args)
+                        np_input = _transform_track(config, args, track_path)
+                        np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+
+                ### DELETE ###
+                        print np_input.shape
+                        print np_output.shape
+
+                        # Save processed .wavs in maps_subset_config2/train to splits/.../train etc.
+
+                        ## Key component to Sigtia Configuration 2 ##
+                        # -> train on synthetic, test on accoustic
+                        datapoint_id = track_name + '.dat'
+                        input_path = paths['train_dir']
+                        test_dirs = config['DATASET_CONFIGS']['config-2_subset']['test']
+                        if subdir_name in test_dirs:
+                            input_path = paths['test_dir']
+
+                        # Save transform and ground truth
+                        input_path = os.path.join(input_path, datapoint_id)
+                        output_path = os.path.join(paths['expect_dir'], datapoint_id)
+                        wrangler.save_mm(input_path, np_input)
+                        wrangler.save_mm(output_path, np_output)
+
 def run(config, args, experiment_id):
     '''
     Executes preprocessing based on dataset_config, transform_type, and model specified.
@@ -213,6 +269,8 @@ def run(config, args, experiment_id):
     # Process dataset using specified dataset_config and transform_type
     if args.dataset_config == 'config-2':
         _preprocess_config2(config, args, experiment_paths, experiment_id)
+    elif args.dataset_config == 'config-2_subset':
+        _preprocess_config2_subset(config, args, experiment_paths, experiment_id)
 
 
 # def _cqt(config, path):

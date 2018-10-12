@@ -12,7 +12,7 @@ MAPS_SUBSET_CONFIG_2_DIR = './datasets/maps_subset_config2/'
 MAPS_SUBSET_CONFIG_2_DIR_TRAIN = os.path.join(MAPS_SUBSET_CONFIG_2_DIR, 'train')
 MAPS_SUBSET_CONFIG_2_DIR_TEST = os.path.join(MAPS_SUBSET_CONFIG_2_DIR, 'test')
 TEST_DIRS = ['ENSTDkAm', 'ENSTDkCl']
-SAMPLE_PERCENTAGE = 0.1
+SAMPLE_PERCENTAGE = 0.01
 
 if __name__ == "__main__":
 
