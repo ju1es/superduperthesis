@@ -414,7 +414,7 @@ def _preprocess_config2_subset(config, args, paths, id):
     print "\nProcessing Test Files.\n"
     test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
     for dat_file in test_wav_paths:
-        inputs, outpus = [], []
+        inputs, outputs = [], []
         for wav_path in dat_file:
             midi_path = wav_path.split('.wav')[0] + '.mid'
 
