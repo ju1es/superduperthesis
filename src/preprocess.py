@@ -303,52 +303,52 @@ def _preprocess_config2_subset(config, args, paths, id):
     :param id: str - unique id of experiment.
     '''
 
-    # Preprocess from the subset dir
-    for subdir_name in os.listdir(config['SUBSET_MAPS_DIR']):
-        subdir_path = os.path.join(config['SUBSET_MAPS_DIR'], subdir_name)
-
-        # Check if directory and not file.
-        if not os.path.isdir(subdir_path):
-            continue
-
-        # Find all .wavs
-        for dir_parent, _, file_names in os.walk(subdir_path):
-            for name in file_names:
-                if name.endswith('.wav'):
-                    track_name = name.split('.wav')[0]
-                    midi_name = track_name + '.mid'
-
-                    if midi_name in file_names:
-                        track_path = os.path.join(dir_parent, name)
-                        midi_path = os.path.join(dir_parent, midi_name)
-
-                ### DELETE ###
-                        print "Processing " + track_path
-
-                        # Transform and Generate ground truth
-                        sr = _get_sample_rate(config['TRANSFORMS'], args)
-                        np_input = _transform_track(config, args, track_path)
-                        np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-                ### DELETE ###
-                        print np_input.shape
-                        print np_output.shape
-
-                        # Save processed .wavs in maps_subset_config2/train to splits/.../train etc.
-
-                        ## Key component to Sigtia Configuration 2 ##
-                        # -> train on synthetic, test on accoustic
-                        datapoint_id = track_name + '.dat'
-                        input_path = paths['train_dir']
-                        test_dirs = config['DATASET_CONFIGS']['config-2_subset']['test']
-                        if subdir_name in test_dirs:
-                            input_path = paths['test_dir']
-
-                        # Save transform and ground truth
-                        input_path = os.path.join(input_path, datapoint_id)
-                        output_path = os.path.join(paths['expect_dir'], datapoint_id)
-                        wrangler.save_mm(input_path, np_input)
-                        wrangler.save_mm(output_path, np_output)
+    # # Preprocess from the subset dir
+    # for subdir_name in os.listdir(config['SUBSET_MAPS_DIR']):
+    #     subdir_path = os.path.join(config['SUBSET_MAPS_DIR'], subdir_name)
+    #
+    #     # Check if directory and not file.
+    #     if not os.path.isdir(subdir_path):
+    #         continue
+    #
+    #     # Find all .wavs
+    #     for dir_parent, _, file_names in os.walk(subdir_path):
+    #         for name in file_names:
+    #             if name.endswith('.wav'):
+    #                 track_name = name.split('.wav')[0]
+    #                 midi_name = track_name + '.mid'
+    #
+    #                 if midi_name in file_names:
+    #                     track_path = os.path.join(dir_parent, name)
+    #                     midi_path = os.path.join(dir_parent, midi_name)
+    #
+    #             ### DELETE ###
+    #                     print "Processing " + track_path
+    #
+    #                     # Transform and Generate ground truth
+    #                     sr = _get_sample_rate(config['TRANSFORMS'], args)
+    #                     np_input = _transform_track(config, args, track_path)
+    #                     np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+    #
+    #             ### DELETE ###
+    #                     print np_input.shape
+    #                     print np_output.shape
+    #
+    #                     # Save processed .wavs in maps_subset_config2/train to splits/.../train etc.
+    #
+    #                     ## Key component to Sigtia Configuration 2 ##
+    #                     # -> train on synthetic, test on accoustic
+    #                     datapoint_id = track_name + '.dat'
+    #                     input_path = paths['train_dir']
+    #                     test_dirs = config['DATASET_CONFIGS']['config-2_subset']['test']
+    #                     if subdir_name in test_dirs:
+    #                         input_path = paths['test_dir']
+    #
+    #                     # Save transform and ground truth
+    #                     input_path = os.path.join(input_path, datapoint_id)
+    #                     output_path = os.path.join(paths['expect_dir'], datapoint_id)
+    #                     wrangler.save_mm(input_path, np_input)
+    #                     wrangler.save_mm(output_path, np_output)
 
     # Get all .wav paths
     train_wav_paths = []
