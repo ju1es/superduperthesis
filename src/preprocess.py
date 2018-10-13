@@ -12,6 +12,7 @@ import numpy as np
 from lib import data_wrangler as wrangler
 
 SPLITS_DIR = 'splits/'
+NUM_DAT_FILES = 5
 
 # Hack for PPQ from MAPS
 pm.pretty_midi.MAX_TICK = 1e10
@@ -154,49 +155,143 @@ def _preprocess_config2(config, args, paths, id):
     :param paths: dict - train, val, test directories for experiment.
     :param id: str - unique id of experiment.
     '''
+    # for subdir_name in os.listdir(config['DATASET_DIR']):
+    #     subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
+    #
+    #     # Check if directory and not file.
+    #     if not os.path.isdir(subdir_path):
+    #         continue
+    #
+    #     # Find all .wavs
+    #     for dir_parent, _, file_names in os.walk(subdir_path):
+    #         for name in file_names:
+    #             if name.endswith('.wav'):
+    #                 track_name = name.split('.wav')[0]
+    #                 midi_name = track_name + '.mid'
+    #
+    #                 if midi_name in file_names:
+    #                     track_path = os.path.join(dir_parent, name)
+    #                     midi_path = os.path.join(dir_parent, midi_name)
+    #
+    #             ### DELETE ###
+    #                     print "Processing " + track_path
+    #
+    #                     # Transform and Generate ground truth
+    #                     sr = _get_sample_rate(config['TRANSFORMS'], args)
+    #                     np_input = _transform_track(config, args, track_path)
+    #                     np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+    #
+    #             ### DELETE ###
+    #                     print np_input.shape
+    #                     print np_output.shape
+    #
+    #                     ## Key component to Sigtia Configuration 2 ##
+    #                     # -> train on synthetic, test on accoustic
+    #                     datapoint_id = track_name + '.dat'
+    #                     input_path = paths['train_dir']
+    #                     test_dirs = config['DATASET_CONFIGS']['config-2']['test']
+    #                     if subdir_name in test_dirs:
+    #                         input_path = paths['test_dir']
+    #
+    #                     # Save transform and ground truth
+    #                     input_path = os.path.join(input_path, datapoint_id)
+    #                     output_path = os.path.join(paths['expect_dir'], datapoint_id)
+    #                     wrangler.save_mm(input_path, np_input)
+    #                     wrangler.save_mm(output_path, np_output)
+
+    # Get all .wav paths
+    train_wav_paths = []
+    test_wav_paths = []
     for subdir_name in os.listdir(config['DATASET_DIR']):
         subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
-
-        # Check if directory and not file.
         if not os.path.isdir(subdir_path):
             continue
-
-        # Find all .wavs
         for dir_parent, _, file_names in os.walk(subdir_path):
             for name in file_names:
                 if name.endswith('.wav'):
                     track_name = name.split('.wav')[0]
                     midi_name = track_name + '.mid'
-
                     if midi_name in file_names:
-                        track_path = os.path.join(dir_parent, name)
-                        midi_path = os.path.join(dir_parent, midi_name)
-
-                ### DELETE ###
-                        print "Processing " + track_path
-
-                        # Transform and Generate ground truth
-                        sr = _get_sample_rate(config['TRANSFORMS'], args)
-                        np_input = _transform_track(config, args, track_path)
-                        np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-                ### DELETE ###
-                        print np_input.shape
-                        print np_output.shape
-
-                        ## Key component to Sigtia Configuration 2 ##
-                        # -> train on synthetic, test on accoustic
-                        datapoint_id = track_name + '.dat'
-                        input_path = paths['train_dir']
+                        wav_path = os.path.join(dir_parent, name)
                         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
                         if subdir_name in test_dirs:
-                            input_path = paths['test_dir']
+                            test_wav_paths.append(wav_path)
+                        else:
+                            train_wav_paths.append(wav_path)
 
-                        # Save transform and ground truth
-                        input_path = os.path.join(input_path, datapoint_id)
-                        output_path = os.path.join(paths['expect_dir'], datapoint_id)
-                        wrangler.save_mm(input_path, np_input)
-                        wrangler.save_mm(output_path, np_output)
+    # Shuffle
+    np.random.shuffle(train_wav_paths)
+    np.random.shuffle(test_wav_paths)
+
+    # Preprocess train .wavs and save into X dat files.
+
+## DELETE ##
+    print "\nProcessing Training Files.\n"
+    cur_dat_num = 0
+    train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
+    for dat_file in train_wav_paths:
+        inputs, outputs = [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+        ### DELETE ###
+            print "Processing " + wav_path
+
+            sr = _get_sample_rate(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+
+        ### DELETE ###
+            print np_input.shape
+            print np_output.shape
+
+            inputs.append(np_input)
+            outputs.append(np_output)
+
+        inputs = np.concatenate(inputs)
+        outputs = np.concatenate(outputs)
+
+        input_path = os.path.join(paths['train_dir'], 'input_' + str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(output_path, outputs)
+
+        cur_dat_num += 1
+
+## DELETE ##
+    print "\nProcessing Test Files.\n"
+    test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
+    for dat_file in test_wav_paths:
+        inputs, outpus = [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+        ### DELETE ###
+            print "Processing " + wav_path
+
+            sr = _get_sample_rate(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+
+        ### DELETE ###
+            print np_input.shape
+            print np_output.shape
+
+            inputs.append(np_input)
+            outputs.append(np_output)
+
+        inputs = np.concatenate(inputs)
+        outputs = np.concatenate(outputs)
+
+        input_path = os.path.join(paths['test_dir'], 'input_' + str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(output_path, outputs)
+
+        cur_dat_num += 1
+
 
 
 def _preprocess_config2_subset(config, args, paths, id):
@@ -254,6 +349,99 @@ def _preprocess_config2_subset(config, args, paths, id):
                         output_path = os.path.join(paths['expect_dir'], datapoint_id)
                         wrangler.save_mm(input_path, np_input)
                         wrangler.save_mm(output_path, np_output)
+
+    # Get all .wav paths
+    train_wav_paths = []
+    test_wav_paths = []
+    for subdir_name in os.listdir(config['SUBSET_MAPS_DIR']):
+        subdir_path = os.path.join(config['SUBSET_MAPS_DIR'], subdir_name)
+        if not os.path.isdir(subdir_path):
+            continue
+        for dir_parent, _, file_names in os.walk(subdir_path):
+            for name in file_names:
+                if name.endswith('.wav'):
+                    track_name = name.split('.wav')[0]
+                    midi_name = track_name + '.mid'
+                    if midi_name in file_names:
+                        wav_path = os.path.join(dir_parent, name)
+                        test_dirs = config['DATASET_CONFIGS']['config-2_subset']['test']
+                        if subdir_name in test_dirs:
+                            test_wav_paths.append(wav_path)
+                        else:
+                            train_wav_paths.append(wav_path)
+
+    # Shuffle
+    np.random.shuffle(train_wav_paths)
+    np.random.shuffle(test_wav_paths)
+
+    # Preprocess train .wavs and save into X dat files.
+
+    ## DELETE ##
+    print "\nProcessing Training Files.\n"
+    cur_dat_num = 0
+    train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
+    for dat_file in train_wav_paths:
+        inputs, outputs = [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+            ### DELETE ###
+            print "Processing " + wav_path
+
+            sr = _get_sample_rate(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+
+            ### DELETE ###
+            print np_input.shape
+            print np_output.shape
+
+            inputs.append(np_input)
+            outputs.append(np_output)
+
+        inputs = np.concatenate(inputs)
+        outputs = np.concatenate(outputs)
+
+        input_path = os.path.join(paths['train_dir'], 'input_' + str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(output_path, outputs)
+
+        cur_dat_num += 1
+
+    ## DELETE ##
+    print "\nProcessing Test Files.\n"
+    test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
+    for dat_file in test_wav_paths:
+        inputs, outpus = [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+            ### DELETE ###
+            print "Processing " + wav_path
+
+            sr = _get_sample_rate(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
+
+            ### DELETE ###
+            print np_input.shape
+            print np_output.shape
+
+            inputs.append(np_input)
+            outputs.append(np_output)
+
+        inputs = np.concatenate(inputs)
+        outputs = np.concatenate(outputs)
+
+        input_path = os.path.join(paths['test_dir'], 'input_' + str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(output_path, outputs)
+
+        cur_dat_num += 1
 
 def run(config, args, experiment_id):
     '''
