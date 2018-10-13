@@ -32,6 +32,7 @@ def _create_dest_dirs(experiment_id):
     val_dir = os.path.join(experiment_path, 'val')
     test_dir = os.path.join(experiment_path, 'test')
     expect_dir = os.path.join(experiment_path, 'expect')
+    results_path = os.path
 
     # Check for splits folder
     if not os.path.exists(SPLITS_DIR):

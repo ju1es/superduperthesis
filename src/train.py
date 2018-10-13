@@ -52,6 +52,14 @@ def run(config, args, experiment_id):
         e.print_no_data()
         sys.exit()
 
+    # Setup results dir
+    if not os.path.exists(RESULTS_DIR):
+        os.mkdir(RESULTS_DIR)
+
+    experiment_results_dir = os.path.join(RESULTS_DIR, experiment_id)
+    if not os.path.exists(experiment_results_dir):
+        os.mkdir(experiment_results_dir)
+
     # Fetch model
     if args.model == 'baseline':
         model = m.baseline_cnn(input_shape=(5, 229), window_size=5)
@@ -132,13 +140,6 @@ def run(config, args, experiment_id):
         # -> loss, val_loss plot
         # -> model history
         # -> weights
-        if not os.path.exists(RESULTS_DIR):
-            os.mkdir(RESULTS_DIR)
-
-        experiment_results_dir = os.path.join(RESULTS_DIR, experiment_id)
-        if not os.path.exists(experiment_results_dir):
-            os.mkdir(experiment_results_dir)
-
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
         plt.ylabel('loss')
