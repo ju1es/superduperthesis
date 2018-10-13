@@ -131,7 +131,7 @@ def run(config, args, experiment_id):
         history = model.fit(
                     x=X,
                     y=y,
-                    epochs=1,
+                    epochs=160,
                     batch_size=100,
                     callbacks=[decay, checkpoint],
                     validation_split=VAL_PERCENTAGE,
