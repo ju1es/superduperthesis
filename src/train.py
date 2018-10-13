@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 import pickle
+plt.use('Agg')
 
 from lib import errors as e
 from lib import models as m
