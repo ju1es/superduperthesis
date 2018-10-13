@@ -6,10 +6,11 @@ Notes:
 import sys
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import json
 import pickle
-plt.use('Agg')
 
 from lib import errors as e
 from lib import models as m
