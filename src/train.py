@@ -92,7 +92,6 @@ def run(config, args, experiment_id):
         X = np.concatenate(X)
         y = np.concatenate(y)
 
-        sys.exit()
         # Execute
         decay = HalfDecay(0.1, 5)
         checkpoint = ModelCheckpoint(
