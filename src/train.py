@@ -19,6 +19,24 @@ from keras.optimizers import SGD
 
 SPLITS_DIR = 'splits/'
 RESULTS_DIR = 'results/'
+VAL_PERCENTAGE = 0.18
+
+
+def read_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    WINDOW_SIZE = 5
+    N_BINS = 229
+
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
+
+    mm_input = np.memmap(input_path, mode='r')
+    mm_output = np.memmap(output_path, mode='r')
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
 
 def run(config, args, experiment_id):
     '''
@@ -51,15 +69,30 @@ def run(config, args, experiment_id):
             metrics=['accuracy', 'mse', 'mae'])
 
         # Load and Shuffle IDs
-        partitions = {}
-        partitions['train'] = []
-        partitions['val'] = []
-        train_datapoints = os.listdir(os.path.join(SPLITS_DIR, experiment_id, 'train'))
+        # partitions = {}
+        # partitions['train'] = []
+        # partitions['val'] = []
+        experiment_dir = os.path.join(SPLITS_DIR, experiment_id)
+        train_datapoints = os.listdir(os.path.join(experiment_dir, 'train'))
         np.random.shuffle(train_datapoints)
-        n_datapoints = len(train_datapoints)
-        split_index = n_datapoints - int(0.18 * n_datapoints)
-        partitions['train'], partitions['val'] = train_datapoints[:split_index], train_datapoints[split_index:]
 
+        # # For .fit_generator()
+        # n_datapoints = len(train_datapoints)
+        # split_index = n_datapoints - int(VAL_PERCENTAGE * n_datapoints)
+        # partitions['train'], partitions['val'] = train_datapoints[:split_index], train_datapoints[split_index:]
+
+        # Load datapoints for .fit()
+        X, y = [], []
+        for track_name in train_datapoints:
+            input, output = read_mm(experiment_dir, 'train', track_name)
+
+            X.append(input)
+            y.append(output)
+
+        X = np.concatenate(X)
+        y = np.concatenate(y)
+
+        sys.exit()
         # Execute
         decay = HalfDecay(0.1, 5)
         checkpoint = ModelCheckpoint(
@@ -68,17 +101,31 @@ def run(config, args, experiment_id):
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        root_dir = os.path.join(SPLITS_DIR, experiment_id)
-        train_gen = DataGenerator(root_dir, 'train', partitions['train'])
-        val_gen = DataGenerator(root_dir, 'train', partitions['val'])
-        history = model.fit_generator(
-                    generator=train_gen,
-                    validation_data=val_gen,
-                    epochs=150, # Hardcoded
-                    use_multiprocessing=True,
-                    workers=6,
-                    verbose=1,
-                    callbacks=[decay, checkpoint])
+
+        # # For .fit_generator()
+        # root_dir = os.path.join(SPLITS_DIR, experiment_id)
+        # train_gen = DataGenerator(root_dir, 'train', partitions['train'])
+        # val_gen = DataGenerator(root_dir, 'train', partitions['val'])
+
+
+        # # Use batches
+        # history = model.fit_generator(
+        #             generator=train_gen,
+        #             validation_data=val_gen,
+        #             epochs=150, # Hardcoded
+        #             use_multiprocessing=True,
+        #             workers=6,
+        #             verbose=1,
+        #             callbacks=[decay, checkpoint])
+
+        history = model.fit(
+                    x=X,
+                    y=y,
+                    epochs=1,
+                    callbacks=[decay, checkpoint],
+                    validation_split=VAL_PERCENTAGE,
+                    verbose=1)
+
         # Save
         # -> acc, val_acc plot
         # -> loss, val_loss plot

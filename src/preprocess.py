@@ -9,7 +9,7 @@ import madmom as mm
 import librosa as lr
 import pretty_midi as pm
 import numpy as np
-from lib import dataWrangler as wrangler
+from lib import data_wrangler as wrangler
 
 SPLITS_DIR = 'splits/'
 
