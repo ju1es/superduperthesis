@@ -251,8 +251,8 @@ def _preprocess_config2(config, args, paths, id):
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
-        input_path = os.path.join(paths['train_dir'], 'input_' + str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+        input_path = os.path.join(paths['train_dir'], str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
@@ -284,8 +284,8 @@ def _preprocess_config2(config, args, paths, id):
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
-        input_path = os.path.join(paths['test_dir'], 'input_' + str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+        input_path = os.path.join(paths['test_dir'], str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
@@ -402,8 +402,8 @@ def _preprocess_config2_subset(config, args, paths, id):
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
-        input_path = os.path.join(paths['train_dir'], 'input_' + str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+        input_path = os.path.join(paths['train_dir'], str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
@@ -435,8 +435,8 @@ def _preprocess_config2_subset(config, args, paths, id):
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
-        input_path = os.path.join(paths['test_dir'], 'input_' + str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], 'output_' + str(cur_dat_num) + '.dat')
+        input_path = os.path.join(paths['test_dir'], str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
