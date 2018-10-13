@@ -74,7 +74,7 @@ def run(config, args, experiment_id):
         # partitions['val'] = []
         experiment_dir = os.path.join(SPLITS_DIR, experiment_id)
         train_datapoints = os.listdir(os.path.join(experiment_dir, 'train'))
-        np.random.shuffle(train_datapoints)
+        # np.random.shuffle(train_datapoints)
 
         # # For .fit_generator()
         # n_datapoints = len(train_datapoints)
@@ -83,8 +83,8 @@ def run(config, args, experiment_id):
 
         # Load datapoints for .fit()
         X, y = [], []
-        for track_name in train_datapoints:
-            input, output = read_mm(experiment_dir, 'train', track_name)
+        for dat_file in train_datapoints:
+            input, output = read_mm(experiment_dir, 'train', dat_file)
 
             X.append(input)
             y.append(output)
@@ -92,7 +92,6 @@ def run(config, args, experiment_id):
         X = np.concatenate(X)
         y = np.concatenate(y)
 
-        sys.exit()
 
         # Execute
         decay = HalfDecay(0.1, 5)
@@ -123,6 +122,7 @@ def run(config, args, experiment_id):
                     x=X,
                     y=y,
                     epochs=1,
+                    batch_size=100,
                     callbacks=[decay, checkpoint],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
