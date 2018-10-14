@@ -52,6 +52,7 @@ def run(config, args, experiment_id):
 
     model = []
     MODEL_RESULTS_DIR = os.path.join(RESULTS_DIR, experiment_id)
+    MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, experiment_id)
     if args.model == 'baseline':
         # Load model
         json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
@@ -71,7 +72,7 @@ def run(config, args, experiment_id):
         test_datapoints = os.listdir(datapoints_path)
         X, y = [], []
         for dat_file in test_datapoints:
-            input, output = read_mm(SPLITS_DIR, 'test', dat_file)
+            input, output = read_mm(MODEL_SPLIT_DIR, 'test', dat_file)
 
             X.append(input)
             y.append(output)
