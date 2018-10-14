@@ -97,7 +97,7 @@ def run(config, args, experiment_id):
 
     # Save
     results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
-    with open(results_file, 'w') as results_file:
+    with open(results_file_path, 'w') as results_file:
         results_file.write("precision recall f_measure f_measure\n")
         results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
 
