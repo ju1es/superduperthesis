@@ -1,7 +1,7 @@
 def print_usage():
     print('Improper arguments!\n'
           'Run as: python app.py [-m mode] [-c config] [-t transform] [-model model]\n'
-          '|  mode = preprocess | train | eval \n'
+          '|  mode = preprocess | train | evaluate \n'
           '|  config = config-1 | config-2\n'
           '|  transform = logfilt | hcqt | wavenet\n'
           '|  model = baseline | magenta | ASDR\n\n'
