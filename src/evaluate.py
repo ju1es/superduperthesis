@@ -90,15 +90,15 @@ def run(config, args, experiment_id):
         fp_total += fp
         fn_total += fn
 
-    precision = tp / (tp + fp)
-    recall = tp / (tp / fn)
-    accuracy = tp / (tp + fp + fn)
-    f_measure = (2 * precision * recall) / (precision + recall)
+    precision = tp / float((tp + fp))
+    recall = tp / float((tp / fn))
+    accuracy = tp / float((tp + fp + fn))
+    f_measure = (2 * precision * recall) / float((precision + recall))
 
     # Save
     results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
     with open(results_file_path, 'w') as results_file:
-        results_file.write("precision recall f_measure f_measure\n")
+        results_file.write("precision recall f_measure accuracy\n")
         results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
 
     print "Saved results at " + results_file_path
