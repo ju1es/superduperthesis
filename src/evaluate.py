@@ -65,7 +65,6 @@ def run(config, args, experiment_id):
                 optimizer=SGD(lr=0.1, momentum=0.9),
                 metrics=['accuracy', 'mse', 'mae'])
 
-
     if args.dataset_config == 'config-2_subset':
         # Load test set
         datapoints_path = os.path.join(SPLITS_DIR, experiment_id, 'test')
@@ -91,7 +90,7 @@ def run(config, args, experiment_id):
         fn_total += fn
 
     precision = tp_total / float(tp_total + fp_total)
-    recall = tp_total / float(tp_total / fn_total)
+    recall = tp_total / (tp_total / float(fn_total))
     accuracy = tp_total / float(tp_total + fp_total + fn_total)
     f_measure = (2 * precision * recall) / float(precision + recall)
 
