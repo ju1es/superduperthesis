@@ -94,18 +94,18 @@ def run(config, args, experiment_id):
     accuracy = tp_total / float(tp_total + fp_total + fn_total)
     f_measure = (2 * precision * recall) / float(precision + recall)
 
-    print '\n\n'
-
+    print '\n\n totals: tp, fp, fn'
     print tp_total, fp_total, fn_total
+    print '\n precision, recall, accuracy, f_measure'
     print precision, recall, accuracy, f_measure
 
-    # # Save
-    # results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
-    # with open(results_file_path, 'w') as results_file:
-    #     results_file.write("precision recall f_measure accuracy\n")
-    #     results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
-    #
-    # print "Saved results at " + results_file_path
+    # Save
+    results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
+    with open(results_file_path, 'w') as results_file:
+        results_file.write("precision recall f_measure accuracy\n")
+        results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
+
+    print "Saved results at " + results_file_path
 
 
 
