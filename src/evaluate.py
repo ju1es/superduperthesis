@@ -58,7 +58,7 @@ def run(config, args, experiment_id):
         loaded_baseline_json = json_file.read()
         json_file.close()
         model = model_from_json(loaded_baseline_json)
-        model.load_weights(MODEL_RESULTS_DIR, experiment_id + '.h5')
+        model.load_weights(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5'))
         model.compile(
                 loss='binary_crossentropy',
                 optimizer=SGD(lr=0.1, momentum=0.9),
