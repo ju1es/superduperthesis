@@ -96,10 +96,12 @@ def run(config, args, experiment_id):
     f_measure = (2 * precision * recall) / (precision + recall)
 
     # Save
-    with open(os.path.join(MODEL_RESULTS_DIR, 'results.txt'), 'w') as results_file:
-        results_file.write("precision recall f_measure f_measure")
+    results_file = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
+    with open(results_file, 'w') as results_file:
+        results_file.write("precision recall f_measure f_measure\n")
         results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
 
+    print "Saved results at " + results_file
 
 
 
