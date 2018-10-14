@@ -1,5 +1,6 @@
 import preprocess as pre
-import train as t
+import train
+import evaluate as eval
 import sys
 import argparse
 from configs import CONFIG
@@ -24,10 +25,9 @@ if __name__ == "__main__":
     if args.mode == 'preprocess' and e.is_valid_args(CONFIG, args):
         pre.run(CONFIG, args, experiment_id)
     elif args.mode == 'train' and e.is_valid_args(CONFIG, args):
-        t.run(CONFIG, args, experiment_id)
+        train.run(CONFIG, args, experiment_id)
     elif args.mode == 'eval' and e.is_valid_args(CONFIG, args):
-        # To Implement
-        pass
+        eval.run(CONFIG, args, experiment_id)
     else:
         e.print_usage()
     sys.exit()
