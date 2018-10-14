@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import json
-from tensorflow.keras.models import model_from_json
-from tensorflow.keras.optimizers import SGD
+from keras.models import model_from_json
+from keras.optimizers import SGD
 
 RESULTS_DIR = './results/'
 SPLITS_DIR = './splits/'
