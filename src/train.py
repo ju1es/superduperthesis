@@ -16,8 +16,8 @@ from lib import errors as e
 from lib import models as m
 from lib.HalfDecay import HalfDecay
 from lib.DataGenerator import DataGenerator
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras.optimizers import SGD
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.optimizers import SGD
 
 SPLITS_DIR = 'splits/'
 RESULTS_DIR = 'results/'
@@ -111,7 +111,7 @@ def run(config, args, experiment_id):
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        early_stopping = EarlyStopping(patience=20, monitor='val_los', verbose=1, mode='min')
+        early_stopping = EarlyStopping(patience=10, monitor='val_los', verbose=1, mode='min')
 
         # # For .fit_generator()
         # root_dir = os.path.join(SPLITS_DIR, experiment_id)
@@ -132,7 +132,7 @@ def run(config, args, experiment_id):
         history = model.fit(
                     x=X,
                     y=y,
-                    epochs=160,
+                    epochs=50,
                     batch_size=100,
                     callbacks=[decay, checkpoint, early_stopping],
                     validation_split=VAL_PERCENTAGE,
