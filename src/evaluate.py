@@ -65,12 +65,12 @@ def run(config, args, experiment_id):
                 optimizer=SGD(lr=0.1, momentum=0.9),
                 metrics=['accuracy', 'mse', 'mae'])
 
-    X, y = [], []
     if args.dataset_config == 'config-2_subset':
         # Load test set
         datapoints_path = os.path.join(SPLITS_DIR, experiment_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
 
+        X, y = [], []
         for dat_file in test_datapoints:
             input, output = read_mm(MODEL_SPLIT_DIR, 'test', dat_file)
 
@@ -80,33 +80,33 @@ def run(config, args, experiment_id):
         X = np.concatenate(X)
         y = np.concatenate(y)
 
-    # Evaluate
-    predictions = model.predict(X, verbose=1)
+        # Evaluate
+        predictions = model.predict(X, verbose=1)
 
-    tp_total, fp_total, fn_total = 0, 0, 0
-    for p, t in zip(predictions, y):
-        tp, fp, _, fn = eval_framewise(p, t)
-        tp_total += tp
-        fp_total += fp
-        fn_total += fn
+        tp_total, fp_total, fn_total = 0, 0, 0
+        for p, t in zip(predictions, y):
+            tp, fp, _, fn = eval_framewise(p, t)
+            tp_total += tp
+            fp_total += fp
+            fn_total += fn
 
-    precision = tp_total / float(tp_total + fp_total)
-    recall = tp_total / (tp_total + float(fn_total))
-    accuracy = tp_total / float(tp_total + fp_total + fn_total)
-    f_measure = (2 * precision * recall) / float(precision + recall)
+        precision = tp_total / float(tp_total + fp_total)
+        recall = tp_total / (tp_total + float(fn_total))
+        accuracy = tp_total / float(tp_total + fp_total + fn_total)
+        f_measure = (2 * precision * recall) / float(precision + recall)
 
-    print '\n\n totals: tp, fp, fn'
-    print tp_total, fp_total, fn_total
-    print '\n precision, recall, accuracy, f_measure'
-    print precision, recall, accuracy, f_measure
+        print '\n\n totals: tp, fp, fn'
+        print tp_total, fp_total, fn_total
+        print '\n precision, recall, accuracy, f_measure'
+        print precision, recall, accuracy, f_measure
 
-    # Save
-    results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
-    with open(results_file_path, 'w') as results_file:
-        results_file.write("precision recall f_measure accuracy\n")
-        results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
+        # Save
+        results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
+        with open(results_file_path, 'w') as results_file:
+            results_file.write("precision recall f_measure accuracy\n")
+            results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
 
-    print "Saved results at " + results_file_path
+        print "Saved results at " + results_file_path
 
 
 
