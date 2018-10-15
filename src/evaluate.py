@@ -65,11 +65,12 @@ def run(config, args, experiment_id):
                 optimizer=SGD(lr=0.1, momentum=0.9),
                 metrics=['accuracy', 'mse', 'mae'])
 
+    X, y = [], []
     if args.dataset_config == 'config-2_subset':
         # Load test set
         datapoints_path = os.path.join(SPLITS_DIR, experiment_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
-        X, y = [], []
+
         for dat_file in test_datapoints:
             input, output = read_mm(MODEL_SPLIT_DIR, 'test', dat_file)
 
