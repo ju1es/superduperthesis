@@ -16,8 +16,8 @@ from lib import errors as e
 from lib import models as m
 from lib.HalfDecay import HalfDecay
 from lib.DataGenerator import DataGenerator
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow.keras.optimizers import SGD
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.optimizers import SGD
 
 SPLITS_DIR = 'splits/'
 RESULTS_DIR = 'results/'

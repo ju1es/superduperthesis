@@ -1,7 +1,7 @@
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Dropout, Input, Conv2D, Reshape, Activation
-from tensorflow.keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Flatten
-from tensorflow.keras.layers.normalization import BatchNormalization
+from keras.models import Model
+from keras.layers import Input, Dense, Dropout, Input, Conv2D, Reshape, Activation
+from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Flatten
+from keras.layers.normalization import BatchNormalization
 
 def baseline_cnn(input_shape, window_size):
     # Layers
