@@ -90,7 +90,7 @@ def run(config, args, experiment_id):
         fn_total += fn
 
     precision = tp_total / float(tp_total + fp_total)
-    recall = tp_total / (tp_total / float(fn_total))
+    recall = tp_total / (tp_total + float(fn_total))
     accuracy = tp_total / float(tp_total + fp_total + fn_total)
     f_measure = (2 * precision * recall) / float(precision + recall)
 
