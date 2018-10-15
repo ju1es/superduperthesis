@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH -J jsulpico_train_config-2_logfilt_baseline
-#SBATCH -N 1
-#SBATCH -p priorityq
+#SBATCH -N 2
+#SBATCH -p quickq
 #SBATCH -o jsulpico_results_train_config-2_logfilt_baseline.out
 #SBATCH -e jsulpico_errors_train_config-2_logfilt_baseline.err
 #SBATCH --gres=gpu:1
