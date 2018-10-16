@@ -104,14 +104,14 @@ def run(config, args, experiment_id):
 
 
         # Execute
-        decay = HalfDecay(0.1, 5)
+        decay = HalfDecay(0.1, 10)
         checkpoint = ModelCheckpoint(
                     RESULTS_DIR + experiment_id + "/"+ experiment_id + "_checkpoint.h5",
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        early_stopping = EarlyStopping(patience=10, monitor='val_los', verbose=1, mode='min')
+        early_stopping = EarlyStopping(patience=5, monitor='val_los', verbose=1, mode='min')
 
         # # For .fit_generator()
         # root_dir = os.path.join(SPLITS_DIR, experiment_id)
