@@ -77,16 +77,19 @@ def _logfilt(config, track_path):
         fref=config['FREF'],
         circular_shift=config['CIRC_SHIFT'],
         fps=config['FPS'],
-        hop_size=config['HOP_SIZE'])
+        hop_size=config['HOP_SIZE'],
+        norm=config['NORM'])
 
     # Normalize, Rescale
+    log_spect = np.array(log_spect) # madmom-class has too many refs to memory.
     log_spect = lr.util.normalize(log_spect, norm=np.inf)
 
     # Generate Windows:
+    min_db = np.min(log_spect)
     log_spect = np.pad(
         log_spect,
         ((config['WINDOW_SIZE'] // 2, config['WINDOW_SIZE'] // 2), (0, 0)),
-        'constant')
+        'constant', constant_values=min_db)
 
     windows = []
     for i in range(log_spect.shape[0] - config['WINDOW_SIZE'] + 1):

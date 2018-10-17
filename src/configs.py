@@ -21,12 +21,13 @@ CONFIG = {
                 'NORM_FILTERS' : True,
                 'FRAME_SIZE' : 4096,
                 'FFT_SIZE' : 4096,
-                'FMIN' : 30,
+                'FMIN' : 27.5,
                 'FMAX' : 8000.0,
                 'FREF' : 440.0,
                 'CIRC_SHIFT' : False,
                 'FPS' : 31.25,
-                'HOP_SIZE' : 441.0
+                'HOP_SIZE' : 441.0,
+                'NORM' : True
         }
     },
     'MODELS' : {
