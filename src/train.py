@@ -104,7 +104,7 @@ def run(config, args, experiment_id):
 
 
         # Execute
-        decay = HalfDecay(0.1, 10)
+        decay = HalfDecay(0.1, 5)
         checkpoint = ModelCheckpoint(
                     RESULTS_DIR + experiment_id + "/"+ experiment_id + "_checkpoint.h5",
                     monitor='val_loss',
@@ -133,7 +133,7 @@ def run(config, args, experiment_id):
                     x=X,
                     y=y,
                     epochs=50,
-                    batch_size=8,
+                    batch_size=100,
                     callbacks=[decay, checkpoint],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
