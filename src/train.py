@@ -133,7 +133,7 @@ def run(config, args, experiment_id):
                     x=X,
                     y=y,
                     epochs=50,
-                    batch_size=8,
+                    batch_size=100,
                     callbacks=[decay, checkpoint, early_stopping],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
