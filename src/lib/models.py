@@ -33,7 +33,7 @@ def baseline_cnn(input_shape, window_size):
     # output = Dense(88, activation='sigmoid')(dropout_3)
 
 ## NEW
-    input = Input(inputShape)
+    input = Input(input_shape)
     reshape = Reshape((5, 229, 1))(input)
 
     conv_1 = Conv2D(32, (3, 3), activation='relu')(reshape)
