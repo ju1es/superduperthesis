@@ -29,7 +29,7 @@ def baseline_cnn(input_shape, window_size):
     dropout_2 = Dropout(0.25)(flatten)
     dense_1 = Dense(512, activation='relu')(dropout_2)
     dropout_3 = Dropout(0.5)(dense_1)
-    output = Dense(88, activation='relu')(dropout_3)
+    output = Dense(88, activation='sigmoid')(dropout_3)
 
     return Model(inputs=input, outputs=output)
 
@@ -38,7 +38,7 @@ def baseline_dcnn(inputShape):
     input = Input(inputShape)
 
     conv1 = Conv2D(32, (3, 3), activation='relu')(input)
-    conv2 = Conv2D(32, (3, 3), activations='relu')(conv2)
+    conv2 = Conv2D(32, (3, 3), activations='relu')(conv1)
     batchNorm1 = BatchNormalization()(conv2)
     maxPool1 = MaxPooling2D(pool_size=(1, 2))(batchNorm1)
     dropOut1 = Dropout(0.25)(maxPool1)
