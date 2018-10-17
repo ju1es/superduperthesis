@@ -111,7 +111,7 @@ def run(config, args, experiment_id):
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        early_stopping = EarlyStopping(patience=5, monitor='val_loss', verbose=1, mode='min')
+        # early_stopping = EarlyStopping(patience=10, monitor='val_loss', verbose=1, mode='min')
 
         # # For .fit_generator()
         # root_dir = os.path.join(SPLITS_DIR, experiment_id)
@@ -133,8 +133,8 @@ def run(config, args, experiment_id):
                     x=X,
                     y=y,
                     epochs=50,
-                    batch_size=100,
-                    callbacks=[decay, checkpoint, early_stopping],
+                    batch_size=8,
+                    callbacks=[decay, checkpoint],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
 
