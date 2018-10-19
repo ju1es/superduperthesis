@@ -25,7 +25,7 @@ CONFIG = {
                 'FMAX' : 8000.0,
                 'FREF' : 440.0,
                 'CIRC_SHIFT' : False,
-                'FPS' : 31.25,
+                # 'FPS' : 31.25,
                 'HOP_SIZE' : 441.0,
                 'NORM' : True
         }

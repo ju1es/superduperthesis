@@ -133,7 +133,7 @@ def run(config, args, experiment_id):
                     x=X,
                     y=y,
                     epochs=50,
-                    batch_size=100, # 8 according to Rainer ICASSP18
+                    batch_size=256, # 8 according to Rainer ICASSP18
                     callbacks=[decay, checkpoint],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
