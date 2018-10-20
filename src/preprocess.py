@@ -75,8 +75,8 @@ def _logfilt(config, track_path):
         fmin=config['FMIN'],
         fmax=config['FMAX'],
         fref=config['FREF'],
+        fps=config['FPS'],
         circular_shift=config['CIRC_SHIFT'],
-        # fps=config['FPS'],
         hop_size=config['HOP_SIZE'],
         norm=config['NORM'])
 
