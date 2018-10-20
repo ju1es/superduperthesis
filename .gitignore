@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 *.h5
+*.dat
+src/notebooks/*.dat
 
 # Ignore folders
 results/

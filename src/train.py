@@ -32,8 +32,8 @@ def read_mm(data_dir, type, ID):
     input_path = os.path.join(data_dir, type, ID)
     output_path = os.path.join(data_dir, 'expect', ID)
 
-    mm_input = np.memmap(input_path, mode='r')
-    mm_output = np.memmap(output_path, mode='r')
+    mm_input = np.memmap(input_path, mode='r', dtype='float32')
+    mm_output = np.memmap(output_path, mode='r', dtype='float32')
     input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS))
     output = np.reshape(mm_output, (-1, NOTE_RANGE))
 
