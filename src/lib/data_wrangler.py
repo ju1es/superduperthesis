@@ -10,7 +10,7 @@ def save_mm(path, datapoint):
     mm_datapoint = np.memmap(
                         filename=path,
                         mode='w+',
-                        dtype='float32',
+                        dtype='float16',
                         shape=datapoint.shape)
     mm_datapoint[:] = datapoint[:]
     del mm_datapoint
