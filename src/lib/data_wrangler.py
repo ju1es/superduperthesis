@@ -61,7 +61,7 @@ def create_split_dirs(dataset_id):
     if not os.path.exists(SPLITS_DIR):
         os.mkdir(SPLITS_DIR)
     if not os.path.exists(dataset_path):
-        os.mkdir(experiment_path)
+        os.mkdir(dataset_path)
     if not os.path.exists(train_dir):
         os.mkdir(train_dir)
     if not os.path.exists(val_dir):
