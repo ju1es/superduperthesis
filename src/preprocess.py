@@ -1,9 +1,9 @@
-'''
+"""
 Notes:
     + For now, validation data lives in the train directories.
       Validation set is created during training from the train directory.
     + Hop_length in ground truth generation is hardcoded.
-'''
+"""
 import os
 import madmom as mm
 import librosa as lr

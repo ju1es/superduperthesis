@@ -3,6 +3,22 @@ from keras.layers import Input, Dense, Dropout, Input, Conv2D, Reshape, Activati
 from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Flatten
 from keras.layers.normalization import BatchNormalization
 
+def hcqt_conv(input_shape):
+    inputs = Input(shape=input_shape)
+    b1 = BatchNormalization()(inputs)
+    c1 = Conv2D(32, (5, 5), padding='same', activation='relu')(b1)
+    b2 = BatchNormalization()(c1)
+    c2 = Conv2D(32, (5, 5), padding='same', activation='relu')(b2)
+    b3 = BatchNormalization()(c2)
+    c3 = Conv2D(32, (3, 3), padding='same', activation='relu')(b3)
+    b4 = BatchNormalization()(c3)
+    c4 = Conv2D(8, (3, 3), padding='same', activation='relu')(b4)
+    b5 = BatchNormalization()(c4)
+    f = Flatten()(b5)
+    outputs = Dense(88, activation='sigmoid')(f)
+    
+    return Model(inputs=inputs, outputs=outputs)
+
 def baseline_cnn(input_shape, window_size):
     # OLD
     # Layers

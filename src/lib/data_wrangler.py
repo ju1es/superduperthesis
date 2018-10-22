@@ -1,18 +1,55 @@
+"""
+Notes:
+    + Window size in save/load mm's is hardcoded. Probably make this a param at some point.
+"""
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import json
+import pickle
+
 
 SPLITS_DIR = 'splits/'
 D_TYPE = 'float16'
 
+
+def save_training_results(history, experiment_results_dir, experiment_id, model):
+    # Loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train_loss', 'val_loss'])
+    plt.title(experiment_id + ' training loss')
+    plt.savefig(os.path.join(experiment_results_dir, experiment_id + '_valloss.png'))
+
+    # Model Architecture
+    model_json = model.to_json()
+    with open(os.path.join(experiment_results_dir, experiment_id + ".json"), "w") as json_file:
+        json_file.write(model_json)
+
+    # Model History
+    with open(os.path.join(experiment_results_dir, experiment_id + "_hist"), 'wb') as file:
+        pickle.dump(history.history, file)
+
+    # Weights
+    model.save_weights(os.path.join(experiment_results_dir, experiment_id + ".h5"))
+
+    print "Training completed."
+    print "Results in:\n"
+    print experiment_results_dir
+
 def create_split_dirs(dataset_id):
-    '''
+    """
     Creates specific preprocessed dataset directories.
     *refer to Notes about val dir.
     :param dataset_id: str - unique id of dataset_config, transform_type, and model.
     Returns
     -------
     dict - contains relevant experiment paths.
-    '''
+    """
 
     dataset_path = os.path.join(SPLITS_DIR, dataset_id)
     train_dir = os.path.join(dataset_path, 'train')
@@ -35,11 +72,6 @@ def create_split_dirs(dataset_id):
         os.mkdir(expect_dir)
 
 def save_mm(path, datapoint):
-    '''
-    Save datapoint to specified path
-    :param path: str - path.
-    :param datapoint: np array - datapoint.
-    '''
     mm_datapoint = np.memmap(
                         filename=path,
                         mode='w+',
@@ -49,12 +81,44 @@ def save_mm(path, datapoint):
     del mm_datapoint
 
 
+def load_logfilt_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    WINDOW_SIZE = 5
+    N_BINS = 229
+
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
+
+def load_hcqt_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    N_BINS = 360
+    HARMONICS = 6
+
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
+    input = np.reshape(mm_input, (-1, N_BINS, HARMONICS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
+
 def fetch_config2_paths(config):
-    '''
+    """
     Fetches train and test sets based on Sigtia Configuration 2
     :param config:
     :return: np array, np array - train and test .wav paths
-    '''
+    """
     train_wav_paths = []
     test_wav_paths = []
 

@@ -39,13 +39,24 @@ CONFIG = {
     'MODELS' : {
         'baseline' : {
             'TRAIN' : {
-                'epochs' : 50,
-                'batch_size' : 256,
-                'lr' : 0.1,
-                'halving_n_epochs' : 5
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
             }
         },
-        'baseline_checkpoint' : True # For Evaluation
+        'baseline-checkpoint' : True, # For Evaluation
+        'hcqt-conv' : {
+            'TRAIN' : {
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'hcqt-conv-checkpoint' : True
     }
     # 'MODE' : {
     #     'PREPROCESS' : {
