@@ -12,7 +12,7 @@ import pickle
 
 
 SPLITS_DIR = 'splits/'
-D_TYPE = 'float16'
+D_TYPE = 'float32'
 
 
 def save_training_results(history, experiment_results_dir, experiment_id, model):
@@ -70,6 +70,15 @@ def create_split_dirs(dataset_id):
         os.mkdir(test_dir)
     if not os.path.exists(expect_dir):
         os.mkdir(expect_dir)
+
+    paths = {}
+    paths['train'] = train_dir
+    paths['val'] = val_dir
+    paths['test'] = test_dir
+    paths['expect'] = expect_dir
+
+    return paths
+
 
 def save_mm(path, datapoint):
     mm_datapoint = np.memmap(

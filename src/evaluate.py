@@ -28,7 +28,7 @@ def eval_framewise(predicts, targets, thresh=0.5):
      author: filip (+ data-format amendments by rainer)
      """
     if predicts.shape != targets.shape:
-         raise ValueError('predictions.shape {} != targets.shape {}'.format(predictions.shape, targets.shape))
+         raise ValueError('predictions.shape {} != targets.shape {}'.format(predicts.shape, targets.shape))
 
     pred = predicts > thresh
     targ = targets > thresh
@@ -39,6 +39,32 @@ def eval_framewise(predicts, targets, thresh=0.5):
 
     # tp, fp, tn, fn
     return tp.sum(), fp.sum(), 0, fn.sum()
+
+
+def prf_framewise((tp, fp, tn, fn)):
+    tp, fp, tn, fn = float(tp), float(fp), float(tn), float(fn)
+
+    if tp + fp == 0.:
+        p = 0.
+    else:
+        p = tp / (tp + fp)
+
+    if tp + fn == 0.:
+        r = 0.
+    else:
+        r = tp / (tp + fn)
+
+    if p + r == 0.:
+        f = 0.
+    else:
+        f = 2 * ((p * r) / (p + r))
+
+    if tp + fp + fn == 0.:
+        a = 0.
+    else:
+        a = tp / (tp + fp + fn)
+
+    return p, r, f, a
 
 
 def run(config, args, experiment_id):
@@ -83,20 +109,23 @@ def run(config, args, experiment_id):
         # Evaluate
         predictions = model.predict(X, verbose=1)
 
-        tp_total, fp_total, fn_total = 0, 0, 0
-        for p, t in zip(predictions, y):
-            tp, fp, _, fn = eval_framewise(p, t)
-            tp_total += tp
-            fp_total += fp
-            fn_total += fn
+        # tp_total, fp_total, fn_total = 0, 0, 0
+        # for p, t in zip(predictions, y):
+        #     tp, fp, _, fn = eval_framewise(p, t)
+        #     tp_total += tp
+        #     fp_total += fp
+        #     fn_total += fn
+        #
+        # precision = tp_total / float(tp_total + fp_total)
+        # recall = tp_total / (tp_total + float(fn_total))
+        # accuracy = tp_total / float(tp_total + fp_total + fn_total)
+        # f_measure = (2 * precision * recall) / float(precision + recall)
 
-        precision = tp_total / float(tp_total + fp_total)
-        recall = tp_total / (tp_total + float(fn_total))
-        accuracy = tp_total / float(tp_total + fp_total + fn_total)
-        f_measure = (2 * precision * recall) / float(precision + recall)
+        precision, recall, f_measure, accuracy = prf_framewise(eval_framewise(predictions, y, thresh=0.5))
 
-        print '\n\n totals: tp, fp, fn'
-        print tp_total, fp_total, fn_total
+
+        # print '\n\n totals: tp, fp, fn'
+        # print tp_total, fp_total, fn_total
         print '\n precision, recall, accuracy, f_measure'
         print precision, recall, accuracy, f_measure
 

@@ -4,14 +4,14 @@ Notes:
       Validation set is created during training from the train directory.
     + Hop_length in ground truth generation is hardcoded.
 """
-import os, sys
+import os
 import madmom as mm
 import librosa as lr
 import pretty_midi as pm
 import numpy as np
 from lib import data_wrangler as wrangler
 
-NUM_DAT_FILES = 5
+NUM_DAT_FILES = 10
 
 # Hack for PPQ from MAPS
 pm.pretty_midi.MAX_TICK = 1e10
@@ -162,7 +162,7 @@ def _get_sr_and_hl(transform_config, args):
     return sr, hl
 
 
-def _transform_wavs(dir_type, wav_paths, config, args, paths):
+def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
     """
     Transform wavs in a specified directory
     :param dir_type: str - train/test
@@ -171,7 +171,7 @@ def _transform_wavs(dir_type, wav_paths, config, args, paths):
     :param args: namespace - specs of run.
     :param paths: run specific split paths.
     """
-    global CUR_DAT_NUM
+    dat_num = cur_dat_num
     for dat_file in wav_paths:
         inputs, outputs = [], []
         for wav_path in dat_file:
@@ -193,13 +193,15 @@ def _transform_wavs(dir_type, wav_paths, config, args, paths):
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
-        input_path = os.path.join(paths[dir_type], str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths[dir_type], str(cur_dat_num) + '.dat')
+        input_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
+        output_path = os.path.join(paths['expect'], str(dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
 
-        CUR_DAT_NUM += 1
+        dat_num += 1
+
+    return dat_num
 
 
 def _preprocess_config2(config, args, paths, id):
@@ -225,9 +227,9 @@ def _preprocess_config2(config, args, paths, id):
     test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
 
     # Transform wavs and save
-    CUR_DAT_NUM = 0
-    _transform_wavs('train', train_wav_paths, config, args, paths)
-    _transform_wavs('test', test_wav_paths, config, args, paths)
+    cur_dat_num = 0
+    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
 def run(config, args, dataset_id):

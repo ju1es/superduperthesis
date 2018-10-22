@@ -107,7 +107,7 @@ def run(config, args, dataset_id, experiment_id):
         # -> loss, val_loss plot
         # -> model history
         # -> weights
-        save_training_results(history, experiment_results_dir, experiment_id)
+        wrangler.save_training_results(history, experiment_results_dir, experiment_id)
 
 
     elif args.model == 'hcqt-conv':
@@ -158,4 +158,4 @@ def run(config, args, dataset_id, experiment_id):
         # -> loss, val_loss plot
         # -> model history
         # -> weights
-        save_training_results(history, experiment_results_dir, experiment_id)
+        wrangler.save_training_results(history, experiment_results_dir, experiment_id)
