@@ -1,40 +1,143 @@
+"""
+Notes:
+    + Window size in save/load mm's is hardcoded. Probably make this a param at some point.
+"""
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import json
+import pickle
+
+
+SPLITS_DIR = 'splits/'
+D_TYPE = 'float16'
+
+
+def save_training_results(history, experiment_results_dir, experiment_id, model):
+    # Loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train_loss', 'val_loss'])
+    plt.title(experiment_id + ' training loss')
+    plt.savefig(os.path.join(experiment_results_dir, experiment_id + '_valloss.png'))
+
+    # Model Architecture
+    model_json = model.to_json()
+    with open(os.path.join(experiment_results_dir, experiment_id + ".json"), "w") as json_file:
+        json_file.write(model_json)
+
+    # Model History
+    with open(os.path.join(experiment_results_dir, experiment_id + "_hist"), 'wb') as file:
+        pickle.dump(history.history, file)
+
+    # Weights
+    model.save_weights(os.path.join(experiment_results_dir, experiment_id + ".h5"))
+
+    print "Training completed."
+    print "Results in:\n"
+    print experiment_results_dir
+
+def create_split_dirs(dataset_id):
+    """
+    Creates specific preprocessed dataset directories.
+    *refer to Notes about val dir.
+    :param dataset_id: str - unique id of dataset_config, transform_type, and model.
+    Returns
+    -------
+    dict - contains relevant experiment paths.
+    """
+
+    dataset_path = os.path.join(SPLITS_DIR, dataset_id)
+    train_dir = os.path.join(dataset_path, 'train')
+    val_dir = os.path.join(dataset_path, 'val')
+    test_dir = os.path.join(dataset_path, 'test')
+    expect_dir = os.path.join(dataset_path, 'expect')
+
+    # Check for splits folder
+    if not os.path.exists(SPLITS_DIR):
+        os.mkdir(SPLITS_DIR)
+    if not os.path.exists(dataset_path):
+        os.mkdir(dataset_path)
+    if not os.path.exists(train_dir):
+        os.mkdir(train_dir)
+    if not os.path.exists(val_dir):
+        os.mkdir(val_dir)
+    if not os.path.exists(test_dir):
+        os.mkdir(test_dir)
+    if not os.path.exists(expect_dir):
+        os.mkdir(expect_dir)
 
 def save_mm(path, datapoint):
-    '''
-    Save datapoint to specified path
-    :param path: str - path.
-    :param datapoint: np array - datapoint.
-    '''
     mm_datapoint = np.memmap(
                         filename=path,
                         mode='w+',
-                        dtype='float16',
+                        dtype=D_TYPE,
                         shape=datapoint.shape)
     mm_datapoint[:] = datapoint[:]
     del mm_datapoint
 
-def fetchPaths(datasetPath):
-    paths = []
-    for root, dirs, files in os.walk(datasetPath):
-        for file in files:
-            if file.endswith(".wav"):
-                paths.append(os.path.join(root, file))
-    return paths
 
-def saveToTraining(config, datapoint, datapointPath):
+def load_logfilt_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    WINDOW_SIZE = 5
+    N_BINS = 229
 
-    # TODO:
-    # + For each column in transform
-    # --> Reshape.
-    #     + np.abs, rescale to (0 to 1)
-    # --> Generate ground truth array
-    #     + np.arange(Nframes) * t
-    #     ---> Where t = hopLength/sampleRate
-    # --> Use associative .txt to check which pitches are on or off.
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
 
-    _, filename = os.path.split(datapointPath)
-    destination = config['TRAINING_SET_PATH'] + os.path.splitext(filename)[0] + ".npy"
-    print("Saved " + destination + "...")
-    np.save(destination, datapoint)
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
+
+def load_hcqt_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    N_BINS = 360
+    HARMONICS = 6
+    WINDOW_SIZE = 5
+
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS, HARMONICS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
+
+def fetch_config2_paths(config):
+    """
+    Fetches train and test sets based on Sigtia Configuration 2
+    :param config:
+    :return: np array, np array - train and test .wav paths
+    """
+    train_wav_paths = []
+    test_wav_paths = []
+
+    for subdir_name in os.listdir(config['DATASET_DIR']):
+        subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
+        if not os.path.isdir(subdir_path):
+            continue
+        for dir_parent, _, file_names in os.walk(subdir_path):
+            for name in file_names:
+                if name.endswith('.wav'):
+                    track_name = name.split('.wav')[0]
+                    midi_name = track_name + '.mid'
+                    if midi_name in file_names:
+                        wav_path = os.path.join(dir_parent, name)
+                        test_dirs = config['DATASET_CONFIGS']['config-2']['test']
+                        if subdir_name in test_dirs:
+                            test_wav_paths.append(wav_path)
+                        else:
+                            train_wav_paths.append(wav_path)
+
+    return train_wav_paths, test_wav_paths

@@ -6,10 +6,7 @@ CONFIG = {
     'DATASET_CONFIGS' : {
         'config-2' : {
                 'test' : ['ENSTDkAm', 'ENSTDkCl']
-        },
-        'config-2_subset' : {
-                'test' : ['test']
-        },
+        }
     },
     'TRANSFORMS' : {
         'logfilt' : {
@@ -28,10 +25,38 @@ CONFIG = {
                 'CIRC_SHIFT' : False,
                 'HOP_SIZE' : 441.0,
                 'NORM' : True
+        },
+        'hcqt' : {
+                'WINDOW_SIZE' : 5,
+                'BINS_PER_OCTAVE' : 60,
+                'N_OCTAVES' : 6,
+                'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
+                'SR' : 22050,
+                'FMIN' : 27.5,
+                'HOP_LENGTH' : 256
         }
     },
     'MODELS' : {
-        'baseline' : True
+        'baseline' : {
+            'TRAIN' : {
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'baseline-checkpoint' : True, # For Evaluation
+        'hcqt-conv' : {
+            'TRAIN' : {
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'hcqt-conv-checkpoint' : True
     }
     # 'MODE' : {
     #     'PREPROCESS' : {
