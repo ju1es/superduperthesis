@@ -101,13 +101,14 @@ def load_hcqt_mm(data_dir, type, ID):
     NOTE_RANGE = 88
     N_BINS = 360
     HARMONICS = 6
+    WINDOW_SIZE = 5
 
     input_path = os.path.join(data_dir, type, ID)
     output_path = os.path.join(data_dir, 'expect', ID)
 
     mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
     mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
-    input = np.reshape(mm_input, (-1, N_BINS, HARMONICS))
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS, HARMONICS))
     output = np.reshape(mm_output, (-1, NOTE_RANGE))
 
     return input, output
