@@ -4,7 +4,7 @@ Notes:
       Validation set is created during training from the train directory.
     + Hop_length in ground truth generation is hardcoded.
 """
-import os
+import os, sys
 import madmom as mm
 import librosa as lr
 import pretty_midi as pm
@@ -76,6 +76,8 @@ def _hcqt(config, track_path):
     # HCQT
     cqt_list = []
     shapes = []
+    print config['HARMONICS']
+    sys.exit()
     for h in config['HARMONICS']:
         cqt = lr.cqt(
             y,
