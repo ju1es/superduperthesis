@@ -16,7 +16,7 @@ from lib import errors as e
 from lib import models as m
 from lib.HalfDecay import HalfDecay
 from lib.DataGenerator import DataGenerator
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from keras.optimizers import SGD
 
 SPLITS_DIR = 'splits/'
@@ -105,19 +105,19 @@ def run(config, args, experiment_id):
 
         # Execute
         decay = HalfDecay(0.1, 5) # 10 halving according to Rainer ICASSP18
+        csv_logger = CSVLogger(RESULTS_DIR + experiment_id + "/"+ experiment_id + ".log")
         checkpoint = ModelCheckpoint(
                     RESULTS_DIR + experiment_id + "/"+ experiment_id + "_checkpoint.h5",
                     monitor='val_loss',
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        # early_stopping = EarlyStopping(patience=10, monitor='val_loss', verbose=1, mode='min')
+        early_stopping = EarlyStopping(patience=5, monitor='val_loss', verbose=1, mode='min')
 
         # # For .fit_generator()
         # root_dir = os.path.join(SPLITS_DIR, experiment_id)
         # train_gen = DataGenerator(root_dir, 'train', partitions['train'])
         # val_gen = DataGenerator(root_dir, 'train', partitions['val'])
-
 
         # # Use batches
         # history = model.fit_generator(
@@ -134,7 +134,7 @@ def run(config, args, experiment_id):
                     y=y,
                     epochs=50,
                     batch_size=256, # 8 according to Rainer ICASSP18
-                    callbacks=[decay, checkpoint],
+                    callbacks=[decay, checkpoint, early_stopping, csv_logger],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
 
@@ -151,13 +151,13 @@ def run(config, args, experiment_id):
         plt.title(experiment_id + ' training loss')
         plt.savefig(os.path.join(experiment_results_dir, experiment_id + '_valloss.png'))
 
-        plt.plot(history.history['acc'])
-        plt.plot(history.history['val_acc'])
-        plt.ylabel('acc')
-        plt.xlabel('epoch')
-        plt.legend(['train_acc', 'val_acc'])
-        plt.title(experiment_id + ' training acc')
-        plt.savefig(os.path.join(experiment_results_dir, experiment_id + '_acc.png'))
+        # plt.plot(history.history['acc'])
+        # plt.plot(history.history['val_acc'])
+        # plt.ylabel('acc')
+        # plt.xlabel('epoch')
+        # plt.legend(['train_acc', 'val_acc'])
+        # plt.title(experiment_id + ' training acc')
+        # plt.savefig(os.path.join(experiment_results_dir, experiment_id + '_acc.png'))
 
         model_json = model.to_json()
         with open(os.path.join(experiment_results_dir, experiment_id + ".json"), "w") as json_file:

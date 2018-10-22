@@ -11,58 +11,19 @@ import pretty_midi as pm
 import numpy as np
 from lib import data_wrangler as wrangler
 
-SPLITS_DIR = 'splits/'
 NUM_DAT_FILES = 5
 
 # Hack for PPQ from MAPS
 pm.pretty_midi.MAX_TICK = 1e10
 
-def _create_dest_dirs(experiment_id):
-    '''
-    Creates model's specific train and test directories.
-    *refer to Notes about val dir.
-    :param experiment_id: str - unique id of dataset_config, transform_type, and model.
-    Returns
-    -------
-    dict - contains relevant experiment paths.
-    '''
-
-    experiment_path = os.path.join(SPLITS_DIR, experiment_id)
-    train_dir = os.path.join(experiment_path, 'train')
-    val_dir = os.path.join(experiment_path, 'val')
-    test_dir = os.path.join(experiment_path, 'test')
-    expect_dir = os.path.join(experiment_path, 'expect')
-
-    # Check for splits folder
-    if not os.path.exists(SPLITS_DIR):
-        os.mkdir(SPLITS_DIR)
-    if not os.path.exists(experiment_path):
-        os.mkdir(experiment_path)
-    if not os.path.exists(train_dir):
-        os.mkdir(train_dir)
-    if not os.path.exists(val_dir):
-        os.mkdir(val_dir)
-    if not os.path.exists(test_dir):
-        os.mkdir(test_dir)
-    if not os.path.exists(expect_dir):
-        os.mkdir(expect_dir)
-
-    experiment_paths = {}
-    experiment_paths['experiment_path'] = experiment_path
-    experiment_paths['train_dir'] = train_dir
-    experiment_paths['val_dir'] = val_dir
-    experiment_paths['test_dir'] = test_dir
-    experiment_paths['expect_dir'] = expect_dir
-    return experiment_paths
-
 
 def _logfilt(config, track_path):
-    '''
-    Applies logarithmic filterbank stft with normalizing, rescaling, and windows.
+    """
+    Applies logarithmic filterbank stft, normalizing, and windows.
     :param config: dict - config.
     :param track_path: str - path of track to transform.
     :return: np array - transformed track.
-    '''
+    """
     log_spect = mm.audio.spectrogram.LogarithmicFilteredSpectrogram(
         track_path,
         num_bands=config['NUM_BANDS'],
@@ -99,20 +60,79 @@ def _logfilt(config, track_path):
     return np.array(windows)
 
 
-def _generate_expected(config, midi_path, input_shape, sr):
-    '''
+def _hcqt(config, track_path):
+    """
+    Applies HCQT, normalizes, and windows.
+
+    HCQT Authors: Bittner and McPhee
+
+    :param config: dict - config.
+    :param track_path: str - path of track to transform.
+    :return: np array - transformed track.
+    """
+    # Load
+    y, fs = lr.load(track_path, sr=config['SR'])
+
+    # HCQT
+    cqt_list = []
+    shapes = []
+    for h in harmonics:
+        cqt = lr.cqt(
+            y,
+            sr=config['SR'],
+            hop_length=config['HOP_LENGTH'],
+            fmin=config['FMIN'] * float(h),
+            n_bins=config['BINS_PER_OCTAVE'] * config['N_OCTAVES'],
+            bins_per_octave=bins_per_octave)
+        cqt_list.append(cqt)
+        shapes.append(cqt.shape)
+
+    shapes_equal = [s == shapes[0] for s in shapes]
+    if not all(shapes_equal):
+        min_time = np.min([s[1] for s in shapes])
+        new_cqt_list = []
+        for i in range(len(cqt_list)):
+            new_cqt_list.append(cqt_list[i][:, :min_time])
+        cqt_list = new_cqt_list
+
+    log_hcqt = ((1.0 / 80.0) * lr.core.amplitude_to_db(
+        np.abs(np.array(cqt_list)), ref=np.max)) + 1.0
+
+    # Normalize
+    log_hcqt = log_hcqt.T # Time, Freq, Harmonics
+    log_hcqt = lr.util.normalize(log_hcqt, norm=np.inf)
+
+    # Windows
+    min_db = np.min(log_hcqt)
+    log_hcqt = np.pad(
+        log_hcqt,
+        ((config['WINDOW_SIZE']//2, config['WINDOW_SIZE']//2), (0, 0), (0, 0)),
+        'constant',
+        constant_values=min_db)
+
+    windows = []
+    for i in range(log_hcqt.shape[0] - config['WINDOW_SIZE'] + 1):
+        w = log_hcqt[i:i+config['WINDOW_SIZE'], :]
+        windows.append(w)
+
+    return np.array(windows)
+
+
+def _generate_expected(config, midi_path, input_shape, sr, hop_length):
+    """
     Generates expected array off of associative midi.
     :param config: config.
     :param midi_path: path to midi generate expected off of.
     :param input_shape: shape of input.
     :param sr: sample rate.
+    :param hop_length: hop length.
     :return: np array - ground truth.
-    '''
+    """
     pm_midi = pm.PrettyMIDI(midi_path)
     times = lr.frames_to_time(
                 np.arange(input_shape),
                 sr=sr,
-                hop_length=441.0)
+                hop_length=hop_length)
     expected = pm_midi.get_piano_roll(
                         fs=sr,
                         times=times)[config['MIN_MIDI']:config['MAX_MIDI']+1].T
@@ -121,308 +141,108 @@ def _generate_expected(config, midi_path, input_shape, sr):
 
 
 def _transform_track(config, args, track_path):
-    '''
-    Applies transform based on args.
-    :param config: dict - config.
-    :param args: namespace - passed in during execution.
-    :param track_path: str - track to transform.
-    :return: np array - Transformed track.
-    '''
     X = []
     if args.transform_type == 'logfilt':
         X = _logfilt(config['TRANSFORMS']['logfilt'], track_path)
+    elif args.transform_type == 'hcqt':
+        X = _hcqt(config['TRANSFORMS']['hcqt'], track_path)
 
     return X
 
 
 def _get_sample_rate(transform_config, args):
-    '''
-    Gets sample rate depending on transform type.
-    :param transform_config: dict - transforms specs.
-    :param args: namespace - passed in during execution.
-    :return: int - sample rate.
-    '''
     sr = 0
+    hl = 0
     if args.transform_type == 'logfilt':
-        sr = transform_config['logfilt']['SR']
+        sr, hl = transform_config['logfilt']['SR'], transform_config['logfilt']['HOP_SIZE']
+    elif args.transform_type == 'hcqt':
+        sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
 
-    return sr
+    return sr, hl
+
+
+def _transform_wavs(dir_type, wav_paths, config, args, paths):
+    """
+    Transform wavs in a specified directory
+    :param dir_type: str - train/test
+    :param wav_paths: str - wav paths.
+    :param config: dict - specs.
+    :param args: namespace - specs of run.
+    :param paths: run specific split paths.
+    """
+    global CUR_DAT_NUM
+    for dat_file in wav_paths:
+        inputs, outputs = [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+            print "Processing " + wav_path
+
+            sr, hl = _get_sr_and_hl(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
+
+            ### Sanity Check ###
+            print np_input.shape
+            print np_output.shape
+
+            inputs.append(np_input)
+            outputs.append(np_output)
+
+        inputs = np.concatenate(inputs)
+        outputs = np.concatenate(outputs)
+
+        input_path = os.path.join(paths[dir_type], str(cur_dat_num) + '.dat')
+        output_path = os.path.join(paths[dir_type], str(cur_dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(output_path, outputs)
+
+        CUR_DAT_NUM += 1
 
 
 def _preprocess_config2(config, args, paths, id):
-    '''
+    """
     Generates processed .wav's and ground truths in experiment directory.
     :param config: dict - config.
     :param args: namespace - passed in during execution.
     :param paths: dict - train, val, test directories for experiment.
     :param id: str - unique id of experiment.
-    '''
-    # for subdir_name in os.listdir(config['DATASET_DIR']):
-    #     subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
-    #
-    #     # Check if directory and not file.
-    #     if not os.path.isdir(subdir_path):
-    #         continue
-    #
-    #     # Find all .wavs
-    #     for dir_parent, _, file_names in os.walk(subdir_path):
-    #         for name in file_names:
-    #             if name.endswith('.wav'):
-    #                 track_name = name.split('.wav')[0]
-    #                 midi_name = track_name + '.mid'
-    #
-    #                 if midi_name in file_names:
-    #                     track_path = os.path.join(dir_parent, name)
-    #                     midi_path = os.path.join(dir_parent, midi_name)
-    #
-    #             ### DELETE ###
-    #                     print "Processing " + track_path
-    #
-    #                     # Transform and Generate ground truth
-    #                     sr = _get_sample_rate(config['TRANSFORMS'], args)
-    #                     np_input = _transform_track(config, args, track_path)
-    #                     np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-    #
-    #             ### DELETE ###
-    #                     print np_input.shape
-    #                     print np_output.shape
-    #
-    #                     ## Key component to Sigtia Configuration 2 ##
-    #                     # -> train on synthetic, test on accoustic
-    #                     datapoint_id = track_name + '.dat'
-    #                     input_path = paths['train_dir']
-    #                     test_dirs = config['DATASET_CONFIGS']['config-2']['test']
-    #                     if subdir_name in test_dirs:
-    #                         input_path = paths['test_dir']
-    #
-    #                     # Save transform and ground truth
-    #                     input_path = os.path.join(input_path, datapoint_id)
-    #                     output_path = os.path.join(paths['expect_dir'], datapoint_id)
-    #                     wrangler.save_mm(input_path, np_input)
-    #                     wrangler.save_mm(output_path, np_output)
+    """
 
-    # Get all .wav paths
-    train_wav_paths = []
-    test_wav_paths = []
-    for subdir_name in os.listdir(config['DATASET_DIR']):
-        subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
-        if not os.path.isdir(subdir_path):
-            continue
-        for dir_parent, _, file_names in os.walk(subdir_path):
-            for name in file_names:
-                if name.endswith('.wav'):
-                    track_name = name.split('.wav')[0]
-                    midi_name = track_name + '.mid'
-                    if midi_name in file_names:
-                        wav_path = os.path.join(dir_parent, name)
-                        test_dirs = config['DATASET_CONFIGS']['config-2']['test']
-                        if subdir_name in test_dirs:
-                            test_wav_paths.append(wav_path)
-                        else:
-                            train_wav_paths.append(wav_path)
+    # Fetch .wav paths
+    train_wav_paths, test_wav_paths = wrangler.fetch_config2_paths(config)
 
     # Shuffle
     np.random.shuffle(train_wav_paths)
     np.random.shuffle(test_wav_paths)
 
-    # Preprocess train .wavs and save into X dat files.
-
-## DELETE ##
     print "\nProcessing Training Files.\n"
-    cur_dat_num = 0
+
+    # Split into N files (i/o reasons)
     train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
-    for dat_file in train_wav_paths:
-        inputs, outputs = [], []
-        for wav_path in dat_file:
-            midi_path = wav_path.split('.wav')[0] + '.mid'
-
-        ### DELETE ###
-            print "Processing " + wav_path
-
-            sr = _get_sample_rate(config['TRANSFORMS'], args)
-            np_input = _transform_track(config, args, wav_path)
-            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-        ### DELETE ###
-            print np_input.shape
-            print np_output.shape
-
-            inputs.append(np_input)
-            outputs.append(np_output)
-
-        inputs = np.concatenate(inputs)
-        outputs = np.concatenate(outputs)
-
-        input_path = os.path.join(paths['train_dir'], str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
-
-        wrangler.save_mm(input_path, inputs)
-        wrangler.save_mm(output_path, outputs)
-
-        cur_dat_num += 1
-
-## DELETE ##
-    print "\nProcessing Test Files.\n"
     test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
-    for dat_file in test_wav_paths:
-        inputs, outputs = [], []
-        for wav_path in dat_file:
-            midi_path = wav_path.split('.wav')[0] + '.mid'
 
-        ### DELETE ###
-            print "Processing " + wav_path
-
-            sr = _get_sample_rate(config['TRANSFORMS'], args)
-            np_input = _transform_track(config, args, wav_path)
-            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-        ### DELETE ###
-            print np_input.shape
-            print np_output.shape
-
-            inputs.append(np_input)
-            outputs.append(np_output)
-
-        inputs = np.concatenate(inputs)
-        outputs = np.concatenate(outputs)
-
-        input_path = os.path.join(paths['test_dir'], str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
-
-        wrangler.save_mm(input_path, inputs)
-        wrangler.save_mm(output_path, outputs)
-
-        cur_dat_num += 1
+    # Transform wavs and save
+    CUR_DAT_NUM = 0
+    _transform_wavs('train', train_wav_paths, config, args, paths)
+    _transform_wavs('test', test_wav_paths, config, args, paths)
 
 
-
-def _preprocess_config2_subset(config, args, paths, id):
-    '''
-    Generates processed .wav's and ground truths in experiment directory.
-    :param config: dict - config.
-    :param args: namespace - passed in during execution.
-    :param paths: dict - train, val, test directories for experiment.
-    :param id: str - unique id of experiment.
-    '''
-    # Get all .wav paths
-    train_wav_paths = []
-    test_wav_paths = []
-    for subdir_name in os.listdir(config['SUBSET_MAPS_DIR']):
-        subdir_path = os.path.join(config['SUBSET_MAPS_DIR'], subdir_name)
-        if not os.path.isdir(subdir_path):
-            continue
-        for dir_parent, _, file_names in os.walk(subdir_path):
-            for name in file_names:
-                if name.endswith('.wav'):
-                    track_name = name.split('.wav')[0]
-                    midi_name = track_name + '.mid'
-                    if midi_name in file_names:
-                        wav_path = os.path.join(dir_parent, name)
-                        test_dirs = config['DATASET_CONFIGS']['config-2_subset']['test']
-                        if subdir_name in test_dirs:
-                            test_wav_paths.append(wav_path)
-                        else:
-                            train_wav_paths.append(wav_path)
-
-    # Shuffle
-    np.random.shuffle(train_wav_paths)
-    np.random.shuffle(test_wav_paths)
-
-    # Preprocess train .wavs and save into X dat files.
-
-    ## DELETE ##
-    print "\nProcessing Training Files.\n"
-    cur_dat_num = 0
-    train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
-    for dat_file in train_wav_paths:
-        inputs, outputs = [], []
-        for wav_path in dat_file:
-            midi_path = wav_path.split('.wav')[0] + '.mid'
-
-            ### DELETE ###
-            print "Processing " + wav_path
-
-            sr = _get_sample_rate(config['TRANSFORMS'], args)
-            np_input = _transform_track(config, args, wav_path)
-            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-            ### DELETE ###
-            print np_input.shape
-            print np_output.shape
-
-            inputs.append(np_input)
-            outputs.append(np_output)
-
-        inputs = np.concatenate(inputs)
-        outputs = np.concatenate(outputs)
-
-        input_path = os.path.join(paths['train_dir'], str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
-
-        wrangler.save_mm(input_path, inputs)
-        wrangler.save_mm(output_path, outputs)
-
-        cur_dat_num += 1
-
-    ## DELETE ##
-    print "\nProcessing Test Files.\n"
-    test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
-    for dat_file in test_wav_paths:
-        inputs, outputs = [], []
-        for wav_path in dat_file:
-            midi_path = wav_path.split('.wav')[0] + '.mid'
-
-            ### DELETE ###
-            print "Processing " + wav_path
-
-            sr = _get_sample_rate(config['TRANSFORMS'], args)
-            np_input = _transform_track(config, args, wav_path)
-            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr)
-
-            ### DELETE ###
-            print np_input.shape
-            print np_output.shape
-
-            inputs.append(np_input)
-            outputs.append(np_output)
-
-        inputs = np.concatenate(inputs)
-        outputs = np.concatenate(outputs)
-
-        input_path = os.path.join(paths['test_dir'], str(cur_dat_num) + '.dat')
-        output_path = os.path.join(paths['expect_dir'], str(cur_dat_num) + '.dat')
-
-        wrangler.save_mm(input_path, inputs)
-        wrangler.save_mm(output_path, outputs)
-
-        cur_dat_num += 1
-
-def run(config, args, experiment_id):
-    '''
+def run(config, args, dataset_id):
+    """
     Executes preprocessing based on dataset_config, transform_type, and model specified.
     :param config: dict - config.
     :param args: Namespace - Contains preprocessing specs.
     :param experiment_id: str - id.
-    '''
-    print "Preprocessing beginning... for " + experiment_id + '\n'
+    """
+    print "Preprocessing beginning... for " + dataset_id + '\n'
 
     # Create directories
-    experiment_paths = _create_dest_dirs(experiment_id)
+    dataset_paths = wrangler.create_split_dirs(dataset_id)
 
     # Process dataset using specified dataset_config and transform_type
     if args.dataset_config == 'config-2':
-        _preprocess_config2(config, args, experiment_paths, experiment_id)
-    elif args.dataset_config == 'config-2_subset':
-        _preprocess_config2_subset(config, args, experiment_paths, experiment_id)
-
-
-# def _cqt(config, path):
-#     timeSeries, sampleRate = lr.load(path)
-#     return lr.cqt(
-#         timeSeries,
-#         fmin=lr.midi_to_hz(config['FREQ_MIN']),
-#         sr=sampleRate,
-#         hop_length=config['HOP_LENGTH'],
-#         bins_per_octave=config['BINS_PER_8VE'],
-#         n_bins=config['N_BINS_TOTAL']
-#     )
+        _preprocess_config2(config, args, dataset_paths, dataset_id)
+    else:
+        print 'ERROR: ' + args.dataset_config + ' doesn\'t exist.'
