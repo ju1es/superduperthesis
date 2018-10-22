@@ -228,8 +228,10 @@ def _preprocess_config2(config, args, paths, id):
 
     # Transform wavs and save
     cur_dat_num = 0
-    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
-    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+    # cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    # _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+
+    print train_wav_paths
 
 
 def run(config, args, dataset_id):
