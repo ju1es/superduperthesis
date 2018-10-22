@@ -150,7 +150,7 @@ def _transform_track(config, args, track_path):
     return X
 
 
-def _get_sample_rate(transform_config, args):
+def _get_sr_and_hl(transform_config, args):
     sr = 0
     hl = 0
     if args.transform_type == 'logfilt':
