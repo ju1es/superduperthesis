@@ -24,17 +24,18 @@ SPLITS_DIR = 'splits/'
 RESULTS_DIR = 'results/'
 VAL_PERCENTAGE = 0.18
 
-def run(config, args, experiment_id):
+def run(config, args, dataset_id, experiment_id):
     '''
     Trains a model based on specifications
     :param config: dict - config.
     :param args: namespace - args passed in.
+    :param dataset_id: str - id.
     :param experiment_id: str - id.
     :return:
     '''
 
     # Check if preprocess has been performed
-    if not os.path.exists(os.path.join(SPLITS_DIR, experiment_id)):
+    if not os.path.exists(os.path.join(SPLITS_DIR, dataset_id)):
         e.print_no_data()
         sys.exit()
 
@@ -66,13 +67,13 @@ def run(config, args, experiment_id):
             metrics=['accuracy', 'mse', 'mae'])
 
         # Fetch train wav paths
-        experiment_dir = os.path.join(SPLITS_DIR, experiment_id)
-        train_datapoints = os.listdir(os.path.join(experiment_dir, 'train'))
+        dataset_dir = os.path.join(SPLITS_DIR, dataset_id)
+        train_datapoints = os.listdir(os.path.join(dataset_dir, 'train'))
 
         # Load datapoints for .fit()
         X, y = [], []
         for dat_file in train_datapoints:
-            input, output = wrangler.load_logfilt_mm(experiment_dir, 'train', dat_file)
+            input, output = wrangler.load_logfilt_mm(dataset_dir, 'train', dat_file)
 
             X.append(input)
             y.append(output)
@@ -118,13 +119,13 @@ def run(config, args, experiment_id):
             metrics=['accuracy', 'mse', 'mae'])
 
         # Fetch train wav paths
-        experiment_dir = os.path.join(SPLITS_DIR, experiment_id)
-        train_datapoints = os.listdir(os.path.join(experiment_dir, 'train'))
+        dataset_dir = os.path.join(SPLITS_DIR, dataset_id)
+        train_datapoints = os.listdir(os.path.join(dataset_dir, 'train'))
 
         # Load datapoints for .fit()
         X, y = [], []
         for dat_file in train_datapoints:
-            input, output = wrangler.load_logfilt_mm(experiment_dir, 'train', dat_file)
+            input, output = wrangler.load_hcqt_mm(dataset_dir, 'train', dat_file)
 
             X.append(input)
             y.append(output)
@@ -133,7 +134,7 @@ def run(config, args, experiment_id):
         y = np.concatenate(y)
 
         # Callbacks
-        decay = HalfDecay(config['LR'], config['HALVING_N_EPOCHS'])  # 10 halving according to Rainer ICASSP18
+        decay = HalfDecay(config['LR'], config['HALVING_N_EPOCHS'])
         csv_logger = CSVLogger(RESULTS_DIR + experiment_id + "/" + experiment_id + ".log")
         checkpoint = ModelCheckpoint(
             RESULTS_DIR + experiment_id + "/" + experiment_id + "_checkpoint.h5",
@@ -147,7 +148,7 @@ def run(config, args, experiment_id):
             x=X,
             y=y,
             epochs=config['EPOCHS'],
-            batch_size=config['BATCH_SIZE'],  # 8 according to Rainer ICASSP18
+            batch_size=config['BATCH_SIZE'],
             callbacks=[decay, checkpoint, early_stopping, csv_logger],
             validation_split=VAL_PERCENTAGE,
             verbose=1)
