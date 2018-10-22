@@ -71,17 +71,16 @@ def _hcqt(config, track_path):
     :return: np array - transformed track.
     """
     # Load
-    y, fs = lr.load(track_path, sr=config['SR'])
+    y, sr = lr.load(track_path, sr=config['SR'])
 
     # HCQT
     cqt_list = []
     shapes = []
-    print config['HARMONICS']
-    sys.exit()
-    for h in config['HARMONICS']:
+    harmonics = config['HARMONICS']
+    for h in harmonics:
         cqt = lr.cqt(
             y,
-            sr=config['SR'],
+            sr=sr,
             hop_length=config['HOP_LENGTH'],
             fmin=config['FMIN'] * float(h),
             n_bins=config['BINS_PER_OCTAVE'] * config['N_OCTAVES'],
