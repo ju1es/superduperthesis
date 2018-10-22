@@ -76,7 +76,7 @@ def _hcqt(config, track_path):
     # HCQT
     cqt_list = []
     shapes = []
-    for h in harmonics:
+    for h in config['HARMONICS']:
         cqt = lr.cqt(
             y,
             sr=config['SR'],
