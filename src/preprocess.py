@@ -190,8 +190,6 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
             inputs.append(np_input)
             outputs.append(np_output)
 
-        if len(inputs) == 0:
-            print dat_file
         inputs = np.concatenate(inputs)
         outputs = np.concatenate(outputs)
 
