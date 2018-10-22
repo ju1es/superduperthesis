@@ -83,7 +83,7 @@ def _hcqt(config, track_path):
             hop_length=config['HOP_LENGTH'],
             fmin=config['FMIN'] * float(h),
             n_bins=config['BINS_PER_OCTAVE'] * config['N_OCTAVES'],
-            bins_per_octave=bins_per_octave)
+            bins_per_octave=config['BINS_PER_OCTAVE'])
         cqt_list.append(cqt)
         shapes.append(cqt.shape)
 
