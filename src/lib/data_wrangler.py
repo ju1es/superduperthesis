@@ -71,6 +71,15 @@ def create_split_dirs(dataset_id):
     if not os.path.exists(expect_dir):
         os.mkdir(expect_dir)
 
+    paths = {}
+    paths['train'] = train_dir
+    paths['val'] = val_dir
+    paths['test'] = test_dir
+    paths['expect'] = expect_dir
+
+    return paths
+
+
 def save_mm(path, datapoint):
     mm_datapoint = np.memmap(
                         filename=path,
