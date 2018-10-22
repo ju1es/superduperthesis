@@ -194,7 +194,7 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
         outputs = np.concatenate(outputs)
 
         input_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
-        output_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
+        output_path = os.path.join(paths['expect'], str(dat_num) + '.dat')
 
         wrangler.save_mm(input_path, inputs)
         wrangler.save_mm(output_path, outputs)
