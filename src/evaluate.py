@@ -67,7 +67,7 @@ def prf_framewise((tp, fp, tn, fn)):
     return p, r, f, a
 
 
-def run(config, args, experiment_id):
+def run(config, args, dataset_id, experiment_id):
     '''
     Generates metrics for a given model.
     :param config:
@@ -78,7 +78,7 @@ def run(config, args, experiment_id):
 
     model = []
     MODEL_RESULTS_DIR = os.path.join(RESULTS_DIR, experiment_id)
-    MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, experiment_id)
+    MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, dataset_id)
     if args.model == 'baseline':
         # Load model
         json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
@@ -93,7 +93,7 @@ def run(config, args, experiment_id):
 
     if args.dataset_config == 'config-2':
         # Load test set
-        datapoints_path = os.path.join(SPLITS_DIR, experiment_id, 'test')
+        datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
 
         X, y = [], []

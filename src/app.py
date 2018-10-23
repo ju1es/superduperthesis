@@ -28,7 +28,7 @@ if __name__ == "__main__":
     elif args.mode == 'train' and e.is_valid_args(CONFIG, args):
         train.run(CONFIG, args, dataset_id, experiment_id)
     elif args.mode == 'evaluate' and e.is_valid_args(CONFIG, args):
-        eval.run(CONFIG, args, experiment_id)
+        eval.run(CONFIG, args, dataset_id, experiment_id)
     else:
         e.print_usage()
     sys.exit()
