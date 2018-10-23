@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import json
+from lib import models as m
 from keras.models import model_from_json
 from keras.optimizers import SGD
 
@@ -81,10 +82,11 @@ def run(config, args, dataset_id, experiment_id):
     MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, dataset_id)
     if args.model == 'baseline':
         # Load model
-        json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
-        loaded_baseline_json = json_file.read()
-        json_file.close()
-        model = model_from_json(loaded_baseline_json)
+        # json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
+        # loaded_baseline_json = json_file.read()
+        # json_file.close()
+        # model = model_from_json(loaded_baseline_json)
+        model = m.baseline_cnn(input_shape=(5, 229), window_size=5)
         model.load_weights(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5'))
         model.compile(
                 loss='binary_crossentropy',
