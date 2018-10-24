@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import json
+from lib import models as m
 from keras.models import model_from_json
 from keras.optimizers import SGD
 
@@ -67,7 +68,7 @@ def prf_framewise((tp, fp, tn, fn)):
     return p, r, f, a
 
 
-def run(config, args, experiment_id):
+def run(config, args, dataset_id, experiment_id):
     '''
     Generates metrics for a given model.
     :param config:
@@ -78,13 +79,14 @@ def run(config, args, experiment_id):
 
     model = []
     MODEL_RESULTS_DIR = os.path.join(RESULTS_DIR, experiment_id)
-    MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, experiment_id)
+    MODEL_SPLIT_DIR = os.path.join(SPLITS_DIR, dataset_id)
     if args.model == 'baseline':
         # Load model
-        json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
-        loaded_baseline_json = json_file.read()
-        json_file.close()
-        model = model_from_json(loaded_baseline_json)
+        # json_file = open(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.json'))
+        # loaded_baseline_json = json_file.read()
+        # json_file.close()
+        # model = model_from_json(loaded_baseline_json)
+        model = m.baseline_cnn(input_shape=(5, 229), window_size=5)
         model.load_weights(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5'))
         model.compile(
                 loss='binary_crossentropy',
@@ -93,7 +95,7 @@ def run(config, args, experiment_id):
 
     if args.dataset_config == 'config-2':
         # Load test set
-        datapoints_path = os.path.join(SPLITS_DIR, experiment_id, 'test')
+        datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
 
         X, y = [], []
