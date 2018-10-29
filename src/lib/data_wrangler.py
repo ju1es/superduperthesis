@@ -12,7 +12,7 @@ import pickle
 
 
 SPLITS_DIR = 'splits/'
-D_TYPE = 'float32'
+D_TYPE = 'float16'
 
 
 def save_training_results(history, experiment_results_dir, experiment_id, model):

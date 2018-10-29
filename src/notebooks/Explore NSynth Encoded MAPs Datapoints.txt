@@ -1,0 +1,238 @@
+
+from magenta.models.nsynth import utils
+from magenta.models.nsynth.wavenet import fastgen
+
+import os
+import librosa as lr
+import numpy as np
+import umap
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.manifold import TSNE
+
+def nsynth_encode(wav_path):
+    # Checkpoint path
+    checkpoint_path = './wavenet-ckpt/model.ckpt-200000'
+    
+    # Load Audio
+    sr = 16000
+    audio, _ = lr.load(wav_path, sr=sr)
+    
+    # Encode
+    encoding = fastgen.encode(audio, checkpoint_path, audio.shape[0])
+    
+    return encoding.reshape((-1, 16))
+
+def get_scaled_umap_embeddings(features, neighbor, distance):
+    embedding = umap.UMAP(n_neighbors=neighbor,
+                          min_dist=distance,
+                          metric='correlation').fit_transform(features)
+    scaler = MinMaxScaler()
+    scaler.fit(embedding)
+    return scaler.transform(embedding)
+
+def get_scaled_tsne_embeddings(features, perplexity, iteration):
+    embedding = TSNE(n_components=2,
+                     perplexity=perplexity,
+                     n_iter=iteration).fit_transform(features)
+    scaler = MinMaxScaler()
+    scaler.fit(embedding)
+    return scaler.transform(embedding)
+
+def transform_numpy_to_json(array):
+    data = []
+    for position in array:
+        data.append({
+            'coordinates': position.tolist()
+        })
+    return data
+
+# Subset of MAPs
+DATASET_DIR = '../datasets/maps/AkPnBcht/ISOL/'
+
+wav_paths = []
+for subdir_name in os.listdir(DATASET_DIR):
+    subdir_path = os.path.join(DATASET_DIR, subdir_name)
+    if not os.path.isdir(subdir_path):
+        continue
+    for dir_parent, dir_name, file_names in os.walk(subdir_path):
+        for name in file_names:
+            if name.endswith('.wav'):
+                wav_paths.append(os.path.join(dir_parent, name))
+
+np.random.shuffle(wav_paths)
+print len(wav_paths)
+
+sample_wav_paths = wav_paths[:100]
+
+dataset = []
+errors = 0
+
+for path in sample_wav_paths:
+    print "Processing.. " + path
+    # Compile NSynth encodings
+    nsynth_encoding = nsynth_encode(path)
+    stddev_nsynth = np.std(nsynth_encoding, axis=0)
+    mean_nsynth = np.mean(nsynth_encoding, axis=0)
+
+    avg_diff_nsynth = np.zeros((16,))
+    for i in range(0, len(nsynth_encoding) - 2, 2):
+        avg_diff_nsynth += nsynth_encoding[i] - nsynth_encoding[i+1]
+    avg_diff_nsynth /= (len(nsynth_encoding) // 2)
+    avg_diff_nsynth = np.array(avg_diff_nsynth)
+
+    nsynth_features = np.hstack((stddev_nsynth, mean_nsynth))
+    nsynth_features = np.hstack((nsynth_features, avg_diff_nsynth))
+    
+    # Compile MFCCs
+    mfcc_size = 13
+    sample_rate = 44100
+    audio, _ = lr.load(path)
+    trimmed_data, _ = lr.effects.trim(y=audio)
+    mfccs = lr.feature.mfcc(trimmed_data, sample_rate, n_mfcc=mfcc_size)
+
+    stddev_mfccs = np.std(mfccs, axis=1)
+    mean_mfccs = np.mean(mfccs, axis=1)
+
+    avg_diff_mfcc = np.zeros((mfcc_size,))
+    for i in range(0, len(mfccs.T) - 2, 2):
+        avg_diff_mfcc += mfccs.T[i] - mfccs.T[i+1]
+    avg_diff_mfcc /= (len(mfccs) // 2)
+    avg_diff_mfcc = np.array(avg_diff_mfcc)
+
+    mfcc_features = np.hstack((stddev_mfccs, mean_mfccs))
+    mfcc_features = np.hstack((mfcc_features, avg_diff_mfcc))
+
+    # Aggregate Features
+    dataset += [(os.path.basename(path), nsynth_features, mfcc_features)]
+        
+#     except:
+#         print "Error found: " + path
+#         errors += 1
+        
+# print "Errors: " + str(errors)
+    
+
+# Prep for plots
+all_file_paths, nsynth_features, mfcc_features = zip(*dataset)
+nsynth_features = np.nan_to_num(np.array(nsynth_features))
+mfcc_features = np.nan_to_num(np.array(mfcc_features))
+
+nsynth_tuples = []
+mfcc_tuples = []
+
+all_json = dict()
+all_json["filenames"] = all_file_paths
+print len(all_file_paths), nsynth_features.shape, mfcc_features.shape
+
+umap_embeddings_mfccs = []
+umap_embeddings_nsynth = []
+neighbors = [5, 10, 15, 30, 50]
+distances = [0.000, 0.001, 0.01, 0.1, 0.5]
+iterations = [200, 500, 1000, 2000, 5000]
+for i, neighbor in enumerate(neighbors):
+    for j, distance in enumerate(distances):
+        umap_mfccs = get_scaled_umap_embeddings(mfcc_features,
+                                                neighbor,
+                                                distance)
+        umap_nsynth = get_scaled_umap_embeddings(nsynth_features,
+                                                 neighbor,
+                                                 distance)
+        umap_embeddings_mfccs.append(umap_mfccs)
+        umap_embeddings_nsynth.append(umap_nsynth)
+        
+        mfcc_key = 'umapmfcc{}{}'.format(i, j)
+        nsynth_key = 'umapnsynth{}{}'.format(i, j)
+        
+        all_json[mfcc_key] = transform_numpy_to_json(umap_mfccs)
+        all_json[nsynth_key] = transform_numpy_to_json(umap_nsynth)
+
+print len(umap_embeddings_mfccs)
+print len(umap_embeddings_nsynth)
+
+# Plot MFCCs
+fig, ax = plt.subplots(nrows=len(neighbors),
+                       ncols=len(distances),
+                       figsize=(30, 30))
+
+for i, row in enumerate(ax):
+    for j, col in enumerate(row):
+        cur_plot = i * len(iterations) + j
+        col.scatter(umap_embeddings_mfccs[cur_plot].T[0],
+                    umap_embeddings_mfccs[cur_plot].T[1],
+                    s=1)
+
+plt.savefig("umap_mfccs")
+# plt.show()
+plt.clf()
+
+# Plot NSynths
+fig, ax = plt.subplots(nrows=len(neighbors),
+                       ncols=len(distances),
+                       figsize=(30, 30))
+
+for i, row in enumerate(ax):
+    for j, col in enumerate(row):
+        cur_plot = i * len(iterations) + j
+        col.scatter(umap_embeddings_nsynth[cur_plot].T[0],
+                    umap_embeddings_nsynth[cur_plot].T[1],
+                    s=1)
+
+plt.savefig("umap_nsynths")
+# plt.show()
+plt.clf()
+
+
+
+tsne_embeddings_mfccs = []
+tsne_embeddings_nsynth = []
+perplexities = [2, 5, 30, 50, 100]
+iterations = [250, 500, 1000, 2000, 5000]
+for i, perplexity in enumerate(perplexities):
+    for j, iteration in enumerate(iterations):
+        tsne_mfccs = get_scaled_tsne_embeddings(mfcc_features,
+                                                perplexity,
+                                                iteration)
+        tsne_nsynth = get_scaled_tsne_embeddings(nsynth_features,
+                                                  perplexity,
+                                                  iteration)
+        tsne_embeddings_mfccs.append(tsne_mfccs)
+        tsne_embeddings_nsynth.append(tsne_nsynth)
+        
+        mfcc_key = 'tsnemfcc{}{}'.format(i, j) 
+        wavenet_key = 'tsnensynth{}{}'.format(i, j) 
+        
+        all_json[mfcc_key] = transform_numpy_to_json(tsne_mfccs)
+        all_json[wavenet_key] = transform_numpy_to_json(tsne_nsynth)
+
+# Plot MFCCs
+fig, ax = plt.subplots(nrows=len(perplexities),
+                       ncols=len(distances),
+                       figsize=(30, 30))
+
+for i, row in enumerate(ax):
+    for j, col in enumerate(row):
+        cur_plot = i * len(iterations) + j
+        col.scatter(tsne_embeddings_mfccs[cur_plot].T[0],
+                    tsne_embeddings_mfccs[cur_plot].T[1],
+                    s=1)
+
+plt.savefig("tsne_mfccs")
+# plt.show()
+plt.clf()
+
+# Plot NSynths
+fig, ax = plt.subplots(nrows=len(perplexities),
+                       ncols=len(distances),
+                       figsize=(30, 30))
+
+for i, row in enumerate(ax):
+    for j, col in enumerate(row):
+        cur_plot = i * len(iterations) + j
+        col.scatter(tsne_embeddings_nsynth[cur_plot].T[0],
+                    tsne_embeddings_nsynth[cur_plot].T[1],
+                    s=1)
+
+plt.savefig("tsne_nsynth")
+# plt.show()
+plt.clf()
