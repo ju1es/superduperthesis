@@ -16,5 +16,6 @@ venv/
 test_inputs/
 test_outputs/
 test_trained_models/
+src/notebooks/wavenet-ckpt/
 
 # Ignore types of files
