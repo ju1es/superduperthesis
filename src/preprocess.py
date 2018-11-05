@@ -247,5 +247,7 @@ def run(config, args, dataset_id):
     # Process dataset using specified dataset_config and transform_type
     if args.dataset_config == 'config-2':
         _preprocess_config2(config, args, dataset_paths, dataset_id)
+    elif args.dataset_config == 'maps-subset_config2':
+        _preprocess_config2(config, args, dataset_paths, dataset_id)
     else:
         print 'ERROR: ' + args.dataset_config + ' doesn\'t exist.'
