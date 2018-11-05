@@ -123,7 +123,7 @@ def load_hcqt_mm(data_dir, type, ID):
     return input, output
 
 
-def fetch_config2_paths(config):
+def fetch_config2_paths(config, args):
     """
     Fetches train and test sets based on Sigtia Configuration 2
     :param config:
@@ -132,8 +132,20 @@ def fetch_config2_paths(config):
     train_wav_paths = []
     test_wav_paths = []
 
-    for subdir_name in os.listdir(config['DATASET_DIR']):
-        subdir_path = os.path.join(config['DATASET_DIR'], subdir_name)
+    root_dir = ""
+    if args.dataset_config == 'config-2':
+        root_dir = config['DATASET_DIR']
+    elif args.dataset_config == 'maps_subset_config2':
+        root_dir = config['MAPS_SUBSET_CONFIG2']
+
+    test_dirs = ""
+    if args.dataset_config == 'config-2':
+        test_dirs = config['DATASET_CONFIGS']['config-2']['test']
+    elif args.dataset_config == 'maps_subset_config2':
+        test_dirs = config['DATASET_CONFIGS']['subset_config-2']['test']
+
+    for subdir_name in os.listdir(root_dir):
+        subdir_path = os.path.join(root_dir, subdir_name)
         if not os.path.isdir(subdir_path):
             continue
         for dir_parent, _, file_names in os.walk(subdir_path):
@@ -143,7 +155,6 @@ def fetch_config2_paths(config):
                     midi_name = track_name + '.mid'
                     if midi_name in file_names:
                         wav_path = os.path.join(dir_parent, name)
-                        test_dirs = config['DATASET_CONFIGS']['config-2']['test']
                         if subdir_name in test_dirs:
                             test_wav_paths.append(wav_path)
                         else:

@@ -2,10 +2,13 @@ CONFIG = {
     'MIN_MIDI' : 21,
     'MAX_MIDI' : 108,
     'DATASET_DIR' : 'datasets/maps/',
-    'SUBSET_MAPS_DIR' : 'datasets/maps_subset_config2/',
+    'MAPS_SUBSET_CONFIG2' : 'datasets/maps_subset_config2/',
     'DATASET_CONFIGS' : {
         'config-2' : {
                 'test' : ['ENSTDkAm', 'ENSTDkCl']
+        }
+        'subset_config-2' : {
+                'test' : ['test']
         }
     },
     'TRANSFORMS' : {
