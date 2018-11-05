@@ -6,7 +6,7 @@ CONFIG = {
     'DATASET_CONFIGS' : {
         'config-2' : {
                 'test' : ['ENSTDkAm', 'ENSTDkCl']
-        }
+        },
         'subset_config-2' : {
                 'test' : ['test']
         }
