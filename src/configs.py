@@ -7,7 +7,7 @@ CONFIG = {
         'config-2' : {
                 'test' : ['ENSTDkAm', 'ENSTDkCl']
         },
-        'subset_config-2' : {
+        'maps_subset_config2' : {
                 'test' : ['test']
         }
     },

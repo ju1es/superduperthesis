@@ -142,7 +142,7 @@ def fetch_config2_paths(config, args):
     if args.dataset_config == 'config-2':
         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
     elif args.dataset_config == 'maps_subset_config2':
-        test_dirs = config['DATASET_CONFIGS']['subset_config-2']['test']
+        test_dirs = config['DATASET_CONFIGS']['maps_subset_config2']['test']
 
     for subdir_name in os.listdir(root_dir):
         subdir_path = os.path.join(root_dir, subdir_name)
