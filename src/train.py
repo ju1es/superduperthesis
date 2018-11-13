@@ -127,7 +127,7 @@ def run(config, args, dataset_id, experiment_id):
         # Load datapoints for .fit()
         X, y = [], []
         for dat_file in train_datapoints:
-            input, output = wrangler.load_logfilt_mm(dataset_dir, 'train', dat_file)
+            input, output = wrangler.load_logfilt_shallow_mm(dataset_dir, 'train', dat_file)
 
             X.append(input)
             y.append(output)

@@ -106,6 +106,21 @@ def load_logfilt_mm(data_dir, type, ID):
     return input, output
 
 
+def load_logfilt_shallow_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    N_BINS = 229
+
+    input_path = os.path.join(data_dir, type, ID)
+    output_path = os.path.join(data_dir, 'expect', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_output = np.memmap(output_path, mode='r', dtype=D_TYPE)
+    input = np.reshape(mm_input, (-1, N_BINS))
+    output = np.reshape(mm_output, (-1, NOTE_RANGE))
+
+    return input, output
+
+
 def load_hcqt_mm(data_dir, type, ID):
     NOTE_RANGE = 88
     N_BINS = 360
