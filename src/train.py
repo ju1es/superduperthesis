@@ -53,6 +53,8 @@ def run(config, args, dataset_id, experiment_id):
         model = m.baseline_cnn(input_shape=(5, 229), window_size=5)
     elif args.model == 'hcqt-conv':
         model = m.hcqt_conv(input_shape=(5, 360, 6))
+    elif args.model == 'shallow_net':
+        model = m.shallow_net(input_shape=(229,))
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
