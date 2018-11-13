@@ -72,7 +72,7 @@ CONFIG = {
                 'EPOCHS' : 170,
                 'BATCH_SIZE' : 256,
                 'LR' : 0.1,
-                'HALVING_N_EPOCHS' : 5,
+                'HALVING_N_EPOCHS' : 10,
                 'MOMENTUM' : 0.9
             }
         },
