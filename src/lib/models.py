@@ -4,6 +4,15 @@ from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Flatten
 from keras.layers import GaussianDropout, GaussianNoise
 from keras.layers.normalization import BatchNormalization
 
+
+def shallow_net(input_shape):
+    input = Input(input_shape)
+    hidden = Dense(512, input_dim=229, activation='relu')(input)
+    output = Dense(88, activation='sigmoid')(hidden)
+
+    return Model(inputs=input, outputs=output)
+
+
 def hcqt_conv(input_shape):
     inputs = Input(shape=input_shape)
     b1 = BatchNormalization()(inputs)

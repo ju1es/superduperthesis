@@ -60,6 +60,31 @@ def _logfilt(config, track_path):
     return np.array(windows)
 
 
+def _logfilt_shallow(config, track_path):
+    log_spect = mm.audio.spectrogram.LogarithmicFilteredSpectrogram(
+        track_path,
+        num_bands=config['NUM_BANDS'],
+        num_channels=config['NUM_CHANNELS'],
+        sr=config['SR'],
+        unique_filters=config['UNIQUE_FILTERS'],
+        norm_filters=config['NORM_FILTERS'],
+        frame_size=config['FRAME_SIZE'],
+        fft_size=config['FFT_SIZE'],
+        fmin=config['FMIN'],
+        fmax=config['FMAX'],
+        fref=config['FREF'],
+        fps=config['FPS'],
+        circular_shift=config['CIRC_SHIFT'],
+        hop_size=config['HOP_SIZE'],
+        norm=config['NORM'])
+
+    # Normalize, Rescale
+    log_spect = np.array(log_spect)  # madmom-class has too many refs to memory.
+    log_spect = lr.util.normalize(log_spect, norm=np.inf)
+
+    return log_spect
+
+
 def _hcqt(config, track_path):
     """
     Applies HCQT, normalizes, and windows.
@@ -145,6 +170,8 @@ def _transform_track(config, args, track_path):
     X = []
     if args.transform_type == 'logfilt':
         X = _logfilt(config['TRANSFORMS']['logfilt'], track_path)
+    elif args.transform_type == 'logfilt_shallow':
+        X = _logfilt_shallow(config['TRANSFORMS']['logfilt_shallow'], track_path)
     elif args.transform_type == 'hcqt':
         X = _hcqt(config['TRANSFORMS']['hcqt'], track_path)
 
@@ -154,7 +181,7 @@ def _transform_track(config, args, track_path):
 def _get_sr_and_hl(transform_config, args):
     sr = 0
     hl = 0
-    if args.transform_type == 'logfilt':
+    if args.transform_type == 'logfilt' or args.transform_type == 'logfilt_shallow':
         sr, hl = transform_config['logfilt']['SR'], transform_config['logfilt']['HOP_SIZE']
     elif args.transform_type == 'hcqt':
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']

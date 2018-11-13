@@ -12,6 +12,23 @@ CONFIG = {
         }
     },
     'TRANSFORMS' : {
+        'logfilt_shallow' : {
+                'WINDOW_SIZE' : 5,
+                'NUM_BANDS' : 48,
+                'NUM_CHANNELS' : 1,
+                'SR' : 44100,
+                'UNIQUE_FILTERS' : True,
+                'NORM_FILTERS' : True,
+                'FRAME_SIZE' : 4096,
+                'FFT_SIZE' : 4096,
+                'FMIN' : 27.5,
+                'FMAX' : 8000.0,
+                'FREF' : 440.0,
+                'FPS' : 100,
+                'CIRC_SHIFT' : False,
+                'HOP_SIZE' : 441.0,
+                'NORM' : True
+        },
         'logfilt' : {
                 'WINDOW_SIZE' : 5,
                 'NUM_BANDS' : 48,
@@ -50,6 +67,15 @@ CONFIG = {
             }
         },
         'baseline-checkpoint' : True, # For Evaluation
+        'shallow_net' : {
+            'TRAIN' : {
+                'EPOCHS' : 170,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
+            }
+        },
         'hcqt-conv' : {
             'TRAIN' : {
                 'EPOCHS' : 50,
