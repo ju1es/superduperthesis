@@ -144,6 +144,51 @@ def _hcqt(config, track_path):
     return np.array(windows)
 
 
+def _hcqt_shallow(config, track_path):
+    """
+    Applies HCQT, normalizes, and windows.
+
+    HCQT Authors: Bittner and McPhee
+
+    :param config: dict - config.
+    :param track_path: str - path of track to transform.
+    :return: np array - transformed track.
+    """
+    # Load
+    y, sr = lr.load(track_path, sr=config['SR'])
+
+    # HCQT
+    cqt_list = []
+    shapes = []
+    harmonics = config['HARMONICS']
+    for h in harmonics:
+        cqt = lr.cqt(
+            y,
+            sr=sr,
+            hop_length=config['HOP_LENGTH'],
+            fmin=config['FMIN'] * float(h),
+            n_bins=config['BINS_PER_OCTAVE'] * config['N_OCTAVES'],
+            bins_per_octave=config['BINS_PER_OCTAVE'])
+        cqt_list.append(cqt)
+        shapes.append(cqt.shape)
+
+    shapes_equal = [s == shapes[0] for s in shapes]
+    if not all(shapes_equal):
+        min_time = np.min([s[1] for s in shapes])
+        new_cqt_list = []
+        for i in range(len(cqt_list)):
+            new_cqt_list.append(cqt_list[i][:, :min_time])
+        cqt_list = new_cqt_list
+
+    log_hcqt = ((1.0 / 80.0) * lr.core.amplitude_to_db(
+        np.abs(np.array(cqt_list)), ref=np.max)) + 1.0
+
+    # Normalize
+    log_hcqt = lr.util.normalize(log_hcqt, norm=np.inf)
+
+    return log_hcqt.T
+
+
 def _generate_expected(config, midi_path, input_shape, sr, hop_length):
     """
     Generates expected array off of associative midi.
@@ -174,6 +219,8 @@ def _transform_track(config, args, track_path):
         X = _logfilt_shallow(config['TRANSFORMS']['logfilt_shallow'], track_path)
     elif args.transform_type == 'hcqt':
         X = _hcqt(config['TRANSFORMS']['hcqt'], track_path)
+    elif args.transform_type == 'hcqt_shallow':
+        X = _hcqt_shallow(config['TRANSFORMS']['hcqt_shallow'], track_path)
 
     return X
 
@@ -183,7 +230,7 @@ def _get_sr_and_hl(transform_config, args):
     hl = 0
     if args.transform_type == 'logfilt' or args.transform_type == 'logfilt_shallow':
         sr, hl = transform_config['logfilt']['SR'], transform_config['logfilt']['HOP_SIZE']
-    elif args.transform_type == 'hcqt':
+    elif args.transform_type == 'hcqt' or args.transform_type == 'hcqt_shallow':
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
 
     return sr, hl

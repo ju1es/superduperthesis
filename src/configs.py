@@ -46,6 +46,14 @@ CONFIG = {
                 'HOP_SIZE' : 441.0,
                 'NORM' : True
         },
+        'hcqt_shallow' : {
+                'BINS_PER_OCTAVE' : 60,
+                'N_OCTAVES' : 6,
+                'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
+                'SR' : 22050,
+                'FMIN' : 27.5,
+                'HOP_LENGTH' : 256
+        },
         'hcqt' : {
                 'WINDOW_SIZE' : 5,
                 'BINS_PER_OCTAVE' : 60,
@@ -77,6 +85,16 @@ CONFIG = {
             }
         },
         'shallow_net_checkpoint' : True, # For Evaluation
+        'hcqt_shallow_net' : {
+            'TRAIN' : {
+                'EPOCHS' : 10,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 10,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'hcqt_shallow_net_checkpoint' : True, # For Evaluation
         'hcqt-conv' : {
             'TRAIN' : {
                 'EPOCHS' : 50,
