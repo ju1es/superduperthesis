@@ -94,7 +94,10 @@ def run(config, args, dataset_id, experiment_id):
                 metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'shallow_net':
         model = m.shallow_net(input_shape=(229,))
-        model.load_weights(os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5'))
+        weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
+        if not os.path.isfile(weights):
+            weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
+        model.load_weights(weights)
         model.compile(
             loss='binary_crossentropy',
             optimizer=SGD(lr=0.1, momentum=0.9),

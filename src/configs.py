@@ -76,7 +76,7 @@ CONFIG = {
                 'MOMENTUM' : 0.9
             }
         },
-        'shallow_net-checkpoint' : True, # For Evaluation
+        'shallow_net_checkpoint' : True, # For Evaluation
         'hcqt-conv' : {
             'TRAIN' : {
                 'EPOCHS' : 50,
