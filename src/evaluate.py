@@ -105,7 +105,7 @@ def run(config, args, dataset_id, experiment_id):
             metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'hcqt_shallow_net':
         # model = m.hcqt_shallow_net(input_shape=(360,6)) 60 numbands
-        model = m.hcqt_shallow_net(input_shape=(360, 6))
+        model = m.hcqt_shallow_net(input_shape=(288, 6))
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
