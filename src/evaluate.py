@@ -103,6 +103,16 @@ def run(config, args, dataset_id, experiment_id):
             loss='binary_crossentropy',
             optimizer=SGD(lr=0.1, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
+    elif args.model == 'hcqt_shallow_net':
+        model = m.hcqt_shallow_net(input_shape=(360,6))
+        weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
+        if not os.path.isfile(weights):
+            weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
+        model.load_weights(weights)
+        model.compile(
+            loss='binary_crossentropy',
+            optimizer=SGD(lr=0.1, momentum=0.9),
+            metrics=['accuracy', 'mse', 'mae'])
 
     if dataset_id == 'config-2_logfilt':
         # Load test set
