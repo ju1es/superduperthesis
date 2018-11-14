@@ -7,7 +7,7 @@ from keras.layers.normalization import BatchNormalization
 
 def shallow_net(input_shape):
     input = Input(input_shape)
-    hidden = Dense(512, input_dim=229, activation='relu')(input)
+    hidden = Dense(512, activation='relu')(input)
     output = Dense(88, activation='sigmoid')(hidden)
 
     return Model(inputs=input, outputs=output)
@@ -16,7 +16,7 @@ def shallow_net(input_shape):
 def hcqt_shallow_net(input_shape):
     input = Input(input_shape)
     flatten = Flatten()(input)
-    hidden = Dense(512, input_dim=229, activation='relu')(flatten)
+    hidden = Dense(512, activation='relu')(flatten)
     output = Dense(88, activation='sigmoid')(hidden)
 
     return Model(inputs=input, outputs=output)
