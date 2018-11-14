@@ -247,6 +247,8 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
     """
     dat_num = cur_dat_num
     for dat_file in wav_paths:
+        total_wavs = len(dat_file)
+        cur_wav = 1
         inputs, outputs = [], []
         for wav_path in dat_file:
             midi_path = wav_path.split('.wav')[0] + '.mid'
@@ -260,6 +262,8 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
             ### Sanity Check ###
             print np_input.shape
             print np_output.shape
+            print "Dat Num: " + str(dat_num) + ". File " + str(cur_wav) + "/" + str(total_wavs)
+            cur_wav += 1
 
             inputs.append(np_input)
             outputs.append(np_output)
