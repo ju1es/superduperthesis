@@ -55,6 +55,8 @@ def run(config, args, dataset_id, experiment_id):
         model = m.hcqt_conv(input_shape=(5, 360, 6))
     elif args.model == 'shallow_net':
         model = m.shallow_net(input_shape=(229,))
+    elif args.model == 'hcqt_shallow_net':
+        model = m.hcqt_shallow_net(input_shape=(360, 6))
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
@@ -202,6 +204,55 @@ def run(config, args, dataset_id, experiment_id):
             y=y,
             epochs=config['EPOCHS'],
             batch_size=config['BATCH_SIZE'],
+            callbacks=[decay, checkpoint, early_stopping, csv_logger],
+            validation_split=VAL_PERCENTAGE,
+            verbose=1)
+
+        # Save
+        # -> acc, val_acc plot
+        # -> loss, val_loss plot
+        # -> model history
+        # -> weights
+        wrangler.save_training_results(history, experiment_results_dir, experiment_id, model)
+    elif args.model == 'hcqt_shallow_net':
+        config = config['MODELS']['hcqt_shallow_net']['TRAIN']
+        # Compile
+        model.compile(
+            loss='binary_crossentropy',
+            optimizer=SGD(lr=config['LR'], momentum=config['MOMENTUM']),
+            metrics=['accuracy', 'mse', 'mae'])
+
+        # Fetch train wav paths
+        dataset_dir = os.path.join(SPLITS_DIR, dataset_id)
+        train_datapoints = os.listdir(os.path.join(dataset_dir, 'train'))
+
+        # Load datapoints for .fit()
+        X, y = [], []
+        for dat_file in train_datapoints:
+            input, output = wrangler.load_hcqt_shallow_mm(dataset_dir, 'train', dat_file)
+
+            X.append(input)
+            y.append(output)
+
+        X = np.concatenate(X)
+        y = np.concatenate(y)
+
+        # Callbacks
+        decay = HalfDecay(config['LR'], config['HALVING_N_EPOCHS'])  # 10 halving according to Rainer ICASSP18
+        csv_logger = CSVLogger(RESULTS_DIR + experiment_id + "/" + experiment_id + ".log")
+        checkpoint = ModelCheckpoint(
+            RESULTS_DIR + experiment_id + "/" + experiment_id + "_checkpoint.h5",
+            monitor='val_loss',
+            verbose=1,
+            save_best_only=True,
+            mode='min')
+        early_stopping = EarlyStopping(patience=5, monitor='val_loss', verbose=1, mode='min')
+
+        history = model.fit(
+            x=X,
+            y=y,
+            epochs=config['EPOCHS'],
+            batch_size=config['BATCH_SIZE'],  # 8 according to Rainer ICASSP18
             callbacks=[decay, checkpoint, early_stopping, csv_logger],
             validation_split=VAL_PERCENTAGE,
             verbose=1)
