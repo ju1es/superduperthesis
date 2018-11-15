@@ -104,8 +104,7 @@ def run(config, args, dataset_id, experiment_id):
             optimizer=SGD(lr=0.1, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'hcqt_shallow_net':
-        # model = m.hcqt_shallow_net(input_shape=(360,6)) 60 numbands
-        model = m.hcqt_shallow_net(input_shape=(288, 6))
+        model = m.hcqt_shallow_net(input_shape=(360,6)) # 60 numbands
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
