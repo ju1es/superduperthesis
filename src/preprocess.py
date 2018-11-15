@@ -233,7 +233,7 @@ def _get_sr_and_hl(transform_config, args):
     elif args.transform_type == 'hcqt':
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
     elif args.transform_type == 'hcqt_shallow':
-        sr, hl = transform_config['hcqt_shallow']['SR'], transform_config['hcqt']['HOP_LENGTH']
+        sr, hl = transform_config['hcqt_shallow']['SR'], transform_config['hcqt_shallow']['HOP_LENGTH']
 
     return sr, hl
 
