@@ -230,8 +230,10 @@ def _get_sr_and_hl(transform_config, args):
     hl = 0
     if args.transform_type == 'logfilt' or args.transform_type == 'logfilt_shallow':
         sr, hl = transform_config['logfilt']['SR'], transform_config['logfilt']['HOP_SIZE']
-    elif args.transform_type == 'hcqt' or args.transform_type == 'hcqt_shallow':
+    elif args.transform_type == 'hcqt':
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
+    elif args.transform_type == 'hcqt_shallow':
+        sr, hl = transform_config['hcqt_shallow']['SR'], transform_config['hcqt']['HOP_LENGTH']
 
     return sr, hl
 
