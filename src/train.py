@@ -56,7 +56,7 @@ def run(config, args, dataset_id, experiment_id):
     elif args.model == 'shallow_net':
         model = m.shallow_net(input_shape=(229,))
     elif args.model == 'hcqt_shallow_net':
-        model = m.hcqt_shallow_net(input_shape=(144, 6)) # 60 numbands = 360, 6
+        model = m.hcqt_shallow_net(input_shape=(72, 6)) # 60 numbands = 360, 6
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
