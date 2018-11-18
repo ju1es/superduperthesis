@@ -104,7 +104,7 @@ def run(config, args, dataset_id, experiment_id):
             optimizer=SGD(lr=0.1, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'hcqt_shallow_net':
-        model = m.hcqt_shallow_net(input_shape=(216,6)) # 60 numbands = 360, 60
+        model = m.hcqt_shallow_net(input_shape=(288,6)) # 60 numbands = 360, 60
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
@@ -256,7 +256,7 @@ def run(config, args, dataset_id, experiment_id):
 
         print "Saved results at " + results_file_path
 
-    elif dataset_id == 'config-maps_config1_fold_3_hcqt_shallow':
+    elif dataset_id == 'maps_config1_fold_3_hcqt_shallow':
         datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
 

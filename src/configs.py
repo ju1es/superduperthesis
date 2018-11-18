@@ -91,7 +91,7 @@ CONFIG = {
         'shallow_net_checkpoint' : True, # For Evaluation
         'hcqt_shallow_net' : {
             'TRAIN' : {
-                'EPOCHS' : 10,
+                'EPOCHS' : 5,
                 'BATCH_SIZE' : 256,
                 'LR' : 0.1,
                 'HALVING_N_EPOCHS' : 10,
