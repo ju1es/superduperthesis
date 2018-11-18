@@ -51,10 +51,10 @@ CONFIG = {
                 'NORM' : True
         },
         'hcqt_shallow' : {
-                'BINS_PER_OCTAVE' : 12,
+                'BINS_PER_OCTAVE' : 48,
                 'N_OCTAVES' : 6,
                 'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
-                'SR' : 22050,
+                'SR' : 44100,
                 'FMIN' : 27.5,
                 'HOP_LENGTH' : 256
         },
