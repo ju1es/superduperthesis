@@ -3,11 +3,15 @@ CONFIG = {
     'MAX_MIDI' : 108,
     'DATASET_DIR' : 'datasets/maps/',
     'MAPS_SUBSET_CONFIG2' : 'datasets/maps_subset_config2/',
+    'MAPS_CONFIG1_FOLD_3' : 'datasets/maps_config1/fold_3/',
     'DATASET_CONFIGS' : {
         'config-2' : {
                 'test' : ['ENSTDkAm', 'ENSTDkCl']
         },
         'maps_subset_config2' : {
+                'test' : ['test']
+        },
+        'maps_config1_fold_3' : {
                 'test' : ['test']
         }
     },

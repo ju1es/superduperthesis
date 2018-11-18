@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import json
 import pickle
 
 
@@ -174,6 +173,38 @@ def fetch_config2_paths(config, args):
         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
     elif args.dataset_config == 'maps_subset_config2':
         test_dirs = config['DATASET_CONFIGS']['maps_subset_config2']['test']
+
+    for subdir_name in os.listdir(root_dir):
+        subdir_path = os.path.join(root_dir, subdir_name)
+        if not os.path.isdir(subdir_path):
+            continue
+        for dir_parent, _, file_names in os.walk(subdir_path):
+            for name in file_names:
+                if name.endswith('.wav'):
+                    track_name = name.split('.wav')[0]
+                    midi_name = track_name + '.mid'
+                    if midi_name in file_names:
+                        wav_path = os.path.join(dir_parent, name)
+                        if subdir_name in test_dirs:
+                            test_wav_paths.append(wav_path)
+                        else:
+                            train_wav_paths.append(wav_path)
+
+    return train_wav_paths, test_wav_paths
+
+
+def fetch_config1_fold_3_paths(config, args):
+    """
+    Fetches train and test sets based on Sigtia Configuration 2
+    :param config:
+    :return: np array, np array - train and test .wav paths
+    """
+    train_wav_paths = []
+    test_wav_paths = []
+
+    root_dir = config['MAPS_CONFIG1_FOLD_3']
+    test_dirs = config['DATASET_CONFIGS']['maps_config1_fold_3']['test']
+
 
     for subdir_name in os.listdir(root_dir):
         subdir_path = os.path.join(root_dir, subdir_name)

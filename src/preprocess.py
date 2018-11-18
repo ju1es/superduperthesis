@@ -312,6 +312,34 @@ def _preprocess_config2(config, args, paths, id):
     _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
+def _preprocess_config1_fold_3(config, args, paths, id):
+    """
+    Generates processed .wav's and ground truths in experiment directory.
+    :param config: dict - config.
+    :param args: namespace - passed in during execution.
+    :param paths: dict - train, val, test directories for experiment.
+    :param id: str - unique id of experiment.
+    """
+
+    # Fetch .wav paths
+    train_wav_paths, test_wav_paths = wrangler.fetch_config1_fold_3_paths(config, args)
+
+    # Shuffle
+    np.random.shuffle(train_wav_paths)
+    np.random.shuffle(test_wav_paths)
+
+    print "\nProcessing Training Files.\n"
+
+    # Split into N files (i/o reasons)
+    train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
+    test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
+
+    # Transform wavs and save
+    cur_dat_num = 0
+    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+
+
 def run(config, args, dataset_id):
     """
     Executes preprocessing based on dataset_config, transform_type, and model specified.
@@ -329,5 +357,7 @@ def run(config, args, dataset_id):
         _preprocess_config2(config, args, dataset_paths, dataset_id)
     elif args.dataset_config == 'maps_subset_config2':
         _preprocess_config2(config, args, dataset_paths, dataset_id)
+    elif args.dataset_config == 'maps_config1_fold_3':
+        _preprocess_config1_fold_3(config, args, dataset_paths, dataset_id)
     else:
         print 'ERROR: ' + args.dataset_config + ' doesn\'t exist.'
