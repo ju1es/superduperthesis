@@ -255,3 +255,35 @@ def run(config, args, dataset_id, experiment_id):
             results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
 
         print "Saved results at " + results_file_path
+
+    elif dataset_id == 'config-maps_config1_fold_3_hcqt_shallow':
+        datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
+        test_datapoints = os.listdir(datapoints_path)
+
+        X, y = [], []
+        for dat_file in test_datapoints:
+            input, output = wrangler.load_hcqt_shallow_mm(MODEL_SPLIT_DIR, 'test', dat_file)
+
+            X.append(input)
+            y.append(output)
+
+        X = np.concatenate(X)
+        y = np.concatenate(y)
+
+        # Evaluate
+        predictions = model.predict(X, verbose=1)
+
+        precision, recall, f_measure, accuracy = prf_framewise(eval_framewise(predictions, y, thresh=0.5))
+
+        # print '\n\n totals: tp, fp, fn'
+        # print tp_total, fp_total, fn_total
+        print '\n precision, recall, accuracy, f_measure'
+        print precision, recall, accuracy, f_measure
+
+        # Save
+        results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
+        with open(results_file_path, 'w') as results_file:
+            results_file.write("precision recall f_measure accuracy\n")
+            results_file.write(str(precision) + " " + str(recall) + " " + str(f_measure) + " " + str(accuracy))
+
+        print "Saved results at " + results_file_path
