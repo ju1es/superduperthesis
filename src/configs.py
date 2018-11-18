@@ -51,7 +51,7 @@ CONFIG = {
                 'NORM' : True
         },
         'hcqt_shallow' : {
-                'BINS_PER_OCTAVE' : 48,
+                'BINS_PER_OCTAVE' : 36,
                 'N_OCTAVES' : 6,
                 'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
                 'SR' : 22050,
