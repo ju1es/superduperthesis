@@ -107,7 +107,7 @@ def load_logfilt_mm(data_dir, type, ID):
 
 def load_logfilt_shallow_mm(data_dir, type, ID):
     NOTE_RANGE = 88
-    N_BINS = 185
+    N_BINS = 136
     # 48 = nb, 229
     # 36 = nb, 185
     # 24 = nb, 136
