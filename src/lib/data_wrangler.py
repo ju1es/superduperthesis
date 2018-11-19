@@ -139,7 +139,11 @@ def load_hcqt_mm(data_dir, type, ID):
 
 def load_hcqt_shallow_mm(data_dir, type, ID):
     NOTE_RANGE = 88
-    N_BINS = 216 # 48 numbands = 288, 60 numbands = 360
+
+    N_BINS = 144
+    # 48 numbands = 288, 60 numbands = 360
+    # 36 nb = 216, 24 nb = 144
+    # 12 nb = 72
     HARMONICS = 6
 
     input_path = os.path.join(data_dir, type, ID)
