@@ -4,7 +4,7 @@ Notes:
       Validation set is created during training from the train directory.
     + Hop_length in ground truth generation is hardcoded.
 """
-import os
+import os, sys
 import copy
 import madmom as mm
 import librosa as lr
@@ -406,6 +406,7 @@ def _preprocess_config2_adsr(config, args, paths, id):
     # Fetch .wav paths
     train_wav_paths, test_wav_paths = wrangler.fetch_config2_paths(config, args)
 
+
     # Shuffle
     np.random.shuffle(train_wav_paths)
     np.random.shuffle(test_wav_paths)
@@ -414,8 +415,8 @@ def _preprocess_config2_adsr(config, args, paths, id):
 
     # Transform wavs and save
     cur_dat_num = 0
-    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
-    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+    cur_dat_num = _transform_wavs_adsr(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs_adsr(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
 def _preprocess_config2(config, args, paths, id):
@@ -442,8 +443,8 @@ def _preprocess_config2(config, args, paths, id):
 
     # Transform wavs and save
     cur_dat_num = 0
-    cur_dat_num = _transform_wavs_adsr(cur_dat_num, 'train', train_wav_paths, config, args, paths)
-    _transform_wavs_adsr(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
 def _preprocess_config1_fold_3(config, args, paths, id):
