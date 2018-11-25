@@ -87,7 +87,7 @@ CONFIG = {
         'baseline-checkpoint' : True, # For Evaluation
         'shallow_net' : {
             'TRAIN' : {
-                'EPOCHS' : 5,
+                'EPOCHS' : 10,
                 'BATCH_SIZE' : 256,
                 'LR' : 0.1,
                 'HALVING_N_EPOCHS' : 10,
