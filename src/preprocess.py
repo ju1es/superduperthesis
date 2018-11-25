@@ -189,6 +189,31 @@ def _hcqt_shallow(config, track_path):
     return log_hcqt.T
 
 
+def _cqt_shallow(config, track_path):
+    """
+    Applies CQT, normalizes, and windows.
+
+    :param config: dict - config.
+    :param track_path: str - path of track to transform.
+    :return: np array - transformed track.
+    """
+    # Load
+    y, sr = lr.load(track_path, sr=config['SR'])
+
+    cqt = lr.cqt(
+        y,
+        sr=sr,
+        hop_length=config['HOP_LENGTH'],
+        fmin=config['FMIN'],
+        n_bins=config['BINS_PER_OCTAVE'] * config['N_OCTAVES'],
+        bins_per_octave=config['BINS_PER_OCTAVE'])
+
+    # Normalize
+    cqt = lr.util.normalize(cqt, norm=np.inf)
+
+    return cqt.T
+
+
 def _generate_expected(config, midi_path, input_shape, sr, hop_length):
     """
     Generates expected array off of associative midi.
@@ -221,6 +246,8 @@ def _transform_track(config, args, track_path):
         X = _hcqt(config['TRANSFORMS']['hcqt'], track_path)
     elif args.transform_type == 'hcqt_shallow':
         X = _hcqt_shallow(config['TRANSFORMS']['hcqt_shallow'], track_path)
+    elif args.transform_type == 'cqt_shallow':
+        X = _cqt_shallow(config['TRANSFORMS']['cqt_shallow'], track_path)
 
     return X
 
@@ -236,7 +263,8 @@ def _get_sr_and_hl(transform_config, args):
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
     elif args.transform_type == 'hcqt_shallow':
         sr, hl = transform_config['hcqt_shallow']['SR'], transform_config['hcqt_shallow']['HOP_LENGTH']
-
+    elif args.transform_type == 'cqt_shallow':
+        sr, hl = transform_config['cqt_shallow']['SR'], transform_config['cqt_shallow']['HOP_LENGTH']
     return sr, hl
 
 
@@ -266,6 +294,7 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
             ### Sanity Check ###
             print np_input.shape
             print np_output.shape
+            print "SR:" + str(sr) + ". HL:" + str(hl) + "."
             print "Dat Num: " + str(dat_num) + ". File " + str(cur_wav) + "/" + str(total_wavs)
             cur_wav += 1
 

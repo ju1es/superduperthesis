@@ -94,7 +94,7 @@ def run(config, args, dataset_id, experiment_id):
                 optimizer=SGD(lr=0.1, momentum=0.9),
                 metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'shallow_net':
-        model = m.shallow_net(input_shape=(185,))
+        model = m.shallow_net(input_shape=(384,))
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')

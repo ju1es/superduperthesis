@@ -29,7 +29,7 @@ CONFIG = {
                 'FREF' : 440.0,
                 'FPS' : 100,
                 'CIRC_SHIFT' : False,
-                'HOP_SIZE' : 441.0,
+                'HOP_SIZE' : 256.0,
                 'NORM' : True
         },
         'logfilt' : {
@@ -65,6 +65,13 @@ CONFIG = {
                 'SR' : 22050,
                 'FMIN' : 27.5,
                 'HOP_LENGTH' : 256
+        },
+        'cqt_shallow' : {
+                'BINS_PER_OCTAVE' : 48,
+                'N_OCTAVES' : 8,
+                'SR' : 44100,
+                'FMIN' : 27.5,
+                'HOP_LENGTH' : 512
         }
     },
     'MODELS' : {
@@ -80,7 +87,7 @@ CONFIG = {
         'baseline-checkpoint' : True, # For Evaluation
         'shallow_net' : {
             'TRAIN' : {
-                'EPOCHS' : 10,
+                'EPOCHS' : 5,
                 'BATCH_SIZE' : 256,
                 'LR' : 0.1,
                 'HALVING_N_EPOCHS' : 10,
