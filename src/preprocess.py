@@ -405,7 +405,8 @@ def _transform_wavs_adsr(cur_dat_num, dir_type, wav_paths, config, args, paths):
 def _preprocess_config2_adsr(config, args, paths, id):
     # Fetch .wav paths
     train_wav_paths, test_wav_paths = wrangler.fetch_config2_paths(config, args)
-
+    print train_wav_paths
+    sys.exit()
 
     # Shuffle
     np.random.shuffle(train_wav_paths)
