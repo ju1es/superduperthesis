@@ -67,9 +67,9 @@ CONFIG = {
                 'HOP_LENGTH' : 256
         },
         'cqt_shallow' : {
-                'BINS_PER_OCTAVE' : 12,
+                'BINS_PER_OCTAVE' : 48,
                 'N_OCTAVES' : 8,
-                'SR' : 44100,
+                'SR' : 22050,
                 'FMIN' : 27.5,
                 'HOP_LENGTH' : 512
         }
