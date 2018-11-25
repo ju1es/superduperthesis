@@ -361,43 +361,43 @@ def _transform_wavs_adsr(cur_dat_num, dir_type, wav_paths, config, args, paths):
             midi_path = wav_path.split('.wav')[0] + '.mid'
 
             print "Processing " + wav_path
-        #
-        #     sr, hl = _get_sr_and_hl(config['TRANSFORMS'], args)
-        #     np_input = _transform_track(config, args, wav_path)
-        #     np_yFrom, midi, times = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
-        #     onsets_midi = _generate_midi_onsets(midi, times[1])
-        #     offsets_midi = _generate_midi_offsets(midi, times[1])
-        #     np_yOn = _generate_adsr_ys(config, onsets_midi, times, sr)
-        #     np_yOff = _generate_adsr_ys(config, offsets_midi, times, sr)
-        #
-        #
-        #     ### Sanity Check ###
-        #     print np_input.shape
-        #     print np_yFrom.shape
-        #     print "Dat Num: " + str(dat_num) + ". File " + str(cur_wav) + "/" + str(total_wavs)
-        #     cur_wav += 1
-        #
-        #     inputs.append(np_input)
-        #     yOns.append(np_yOn)
-        #     yFroms.append(np_yFrom)
-        #     yOffs.append(np_yOff)
-        #
-        # inputs = np.concatenate(inputs)
-        # yFroms = np.concatenate(yFroms)
-        # yOns = np.concatenate(yOns)
-        # yOffs = np.concatenate(yOffs)
-        #
-        # input_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
-        # yFroms_path = os.path.join(paths['expect_yFroms'], str(dat_num) + '.dat')
-        # yOns_path = os.path.join(paths['expect_yOns'], str(dat_num) + '.dat')
-        # yOffs_path = os.path.join(paths['expect_yOffs'], str(dat_num) + '.dat')
-        #
-        # wrangler.save_mm(input_path, inputs)
-        # wrangler.save_mm(yFroms_path, yFroms)
-        # wrangler.save_mm(yOns_path, yOns)
-        # wrangler.save_mm(yOffs_path, yOffs)
-        #
-        # dat_num += 1
+
+            sr, hl = _get_sr_and_hl(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_yFrom, midi, times = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
+            onsets_midi = _generate_midi_onsets(midi, times[1])
+            offsets_midi = _generate_midi_offsets(midi, times[1])
+            np_yOn = _generate_adsr_ys(config, onsets_midi, times, sr)
+            np_yOff = _generate_adsr_ys(config, offsets_midi, times, sr)
+
+
+            ### Sanity Check ###
+            print np_input.shape
+            print np_yFrom.shape
+            print "Dat Num: " + str(dat_num) + ". File " + str(cur_wav) + "/" + str(total_wavs)
+            cur_wav += 1
+
+            inputs.append(np_input)
+            yOns.append(np_yOn)
+            yFroms.append(np_yFrom)
+            yOffs.append(np_yOff)
+
+        inputs = np.concatenate(inputs)
+        yFroms = np.concatenate(yFroms)
+        yOns = np.concatenate(yOns)
+        yOffs = np.concatenate(yOffs)
+
+        input_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
+        yFroms_path = os.path.join(paths['expect_yFroms'], str(dat_num) + '.dat')
+        yOns_path = os.path.join(paths['expect_yOns'], str(dat_num) + '.dat')
+        yOffs_path = os.path.join(paths['expect_yOffs'], str(dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(yFroms_path, yFroms)
+        wrangler.save_mm(yOns_path, yOns)
+        wrangler.save_mm(yOffs_path, yOffs)
+
+        dat_num += 1
 
     return dat_num
 
@@ -411,6 +411,10 @@ def _preprocess_config2_adsr(config, args, paths, id):
     np.random.shuffle(test_wav_paths)
 
     print "\nProcessing Training Files.\n"
+
+    # Split into N files (i/o reasons)
+    train_wav_paths = np.array_split(np.array(train_wav_paths), NUM_DAT_FILES)
+    test_wav_paths = np.array_split(np.array(test_wav_paths), NUM_DAT_FILES)
 
     # Transform wavs and save
     cur_dat_num = 0
