@@ -107,7 +107,7 @@ def load_logfilt_mm(data_dir, type, ID):
 
 def load_logfilt_shallow_mm(data_dir, type, ID):
     NOTE_RANGE = 88
-    N_BINS = 384
+    N_BINS = 144
     # LogFilt
     # 48 = nb, 229
     # 36 = nb, 185
@@ -117,6 +117,7 @@ def load_logfilt_shallow_mm(data_dir, type, ID):
     # CQT
     # 48 = nb, 384
     # 36 = nb, 288
+    # 24 = nb, 144
 
     input_path = os.path.join(data_dir, type, ID)
     output_path = os.path.join(data_dir, 'expect', ID)
