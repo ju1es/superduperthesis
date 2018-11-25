@@ -54,7 +54,7 @@ def run(config, args, dataset_id, experiment_id):
     elif args.model == 'hcqt-conv':
         model = m.hcqt_conv(input_shape=(5, 360, 6))
     elif args.model == 'shallow_net':
-        model = m.shallow_net(input_shape=(144,))
+        model = m.shallow_net(input_shape=(96,))
     elif args.model == 'hcqt_shallow_net':
         model = m.hcqt_shallow_net(input_shape=(72, 6))
     else:
