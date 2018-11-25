@@ -79,6 +79,26 @@ def create_split_dirs(dataset_id):
     return paths
 
 
+def create_adsr_expect_dirs(paths):
+    new_paths = paths
+
+    expect_yOns_dir = os.path.join(paths['expect'], 'yOns')
+    expect_yFroms_dir = os.path.join(paths['expect'], 'yFroms')
+    expect_yOffs_dir = os.path.join(paths['expect'], 'yOffs')
+
+    if not os.path.exists(expect_yOns_dir):
+        os.mkdir(expect_yOns_dir)
+    if not os.path.exists(expect_yFroms_dir):
+        os.mkdir(expect_yFroms_dir)
+    if not os.path.exists(expect_yOffs_dir):
+        os.mkdir(expect_yOffs_dir)
+
+    new_paths['expect_yOns'] = expect_yOns_dir
+    new_paths['expect_yFroms'] = expect_yFroms_dir
+    new_paths['expect_yOffs'] = expect_yOffs_dir
+
+    return new_paths
+
 def save_mm(path, datapoint):
     mm_datapoint = np.memmap(
                         filename=path,
@@ -182,12 +202,17 @@ def fetch_config2_paths(config, args):
         root_dir = config['DATASET_DIR']
     elif args.dataset_config == 'maps_subset_config2':
         root_dir = config['MAPS_SUBSET_CONFIG2']
+    elif args.dataset_config == 'maps_config2_adsr':
+        root_dir = config['MAPS_CONFIG2']
 
     test_dirs = ""
     if args.dataset_config == 'config-2':
         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
     elif args.dataset_config == 'maps_subset_config2':
         test_dirs = config['DATASET_CONFIGS']['maps_subset_config2']['test']
+    elif args.dataset_config == 'maps_config2_adsr':
+        test_dirs = config['DATASET_CONFIGS']['maps_config2_adsr']['test']
+
 
     for subdir_name in os.listdir(root_dir):
         subdir_path = os.path.join(root_dir, subdir_name)

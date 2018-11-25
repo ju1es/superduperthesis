@@ -2,6 +2,7 @@ CONFIG = {
     'MIN_MIDI' : 21,
     'MAX_MIDI' : 108,
     'DATASET_DIR' : 'datasets/maps/',
+    'MAPS_CONFIG2' : 'datasets/maps_config2/',
     'MAPS_SUBSET_CONFIG2' : 'datasets/maps_subset_config2/',
     'MAPS_CONFIG1_FOLD_3' : 'datasets/maps_config1/fold_3/',
     'DATASET_CONFIGS' : {
@@ -12,6 +13,9 @@ CONFIG = {
                 'test' : ['test']
         },
         'maps_config1_fold_3' : {
+                'test' : ['test']
+        },
+        'maps_config2_adsr' : {
                 'test' : ['test']
         }
     },
@@ -43,6 +47,23 @@ CONFIG = {
                 'FFT_SIZE' : 4096,
                 'FMIN' : 27.5,
                 'FMAX' : 8000.0,
+                'FREF' : 440.0,
+                'FPS' : 100,
+                'CIRC_SHIFT' : False,
+                'HOP_SIZE' : 441.0,
+                'NORM' : True
+        },
+        'logfilt_adsr_baseline' : {
+                'WINDOW_SIZE' : 11,
+                'NUM_BANDS' : 48,
+                'NUM_CHANNELS' : 1,
+                'SR' : 44100,
+                'UNIQUE_FILTERS' : True,
+                'NORM_FILTERS' : True,
+                'FRAME_SIZE' : 4096,
+                'FFT_SIZE' : 4096,
+                'FMIN' : 27.5,
+                'FMAX' : 2325.0,
                 'FREF' : 440.0,
                 'FPS' : 100,
                 'CIRC_SHIFT' : False,

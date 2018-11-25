@@ -5,6 +5,7 @@ Notes:
     + Hop_length in ground truth generation is hardcoded.
 """
 import os
+import copy
 import madmom as mm
 import librosa as lr
 import pretty_midi as pm
@@ -234,7 +235,37 @@ def _generate_expected(config, midi_path, input_shape, sr, hop_length):
                         fs=sr,
                         times=times)[config['MIN_MIDI']:config['MAX_MIDI']+1].T
     expected[expected > 0] = 1
+    return expected, pm_midi, times
+
+
+def _generate_adsr_ys(config, midi, times, sr):
+    expected = midi.get_piano_roll(
+        fs=sr,
+        times=times)[config['MIN_MIDI']:config['MAX_MIDI'] + 1].T
+    expected[expected > 0] = 1
     return expected
+
+
+def _generate_midi_onsets(midi, pad_space):
+    midi_onsets = copy.deepcopy(midi)
+
+    for note in midi_onsets.instruments[0].notes:
+        temp = note.start
+        note.start = temp - pad_space
+        note.end = temp + pad_space
+
+    return midi_onsets
+
+
+def _generate_midi_offsets(midi, pad_space):
+    midi_offsets = copy.deepcopy(midi)
+
+    for note in midi_offsets.instruments[0].notes:
+        temp = note.end
+        note.start = note.end - pad_space
+        note.end = temp + pad_space
+
+    return midi_offsets
 
 
 def _transform_track(config, args, track_path):
@@ -249,6 +280,8 @@ def _transform_track(config, args, track_path):
         X = _hcqt_shallow(config['TRANSFORMS']['hcqt_shallow'], track_path)
     elif args.transform_type == 'cqt_shallow':
         X = _cqt_shallow(config['TRANSFORMS']['cqt_shallow'], track_path)
+    elif args.transform_type == 'logfilt_adsr_baseline':
+        X = _logfilt(config['TRANSFORMS']['logfilt_adsr_baseline'], track_path)
 
     return X
 
@@ -266,6 +299,8 @@ def _get_sr_and_hl(transform_config, args):
         sr, hl = transform_config['hcqt_shallow']['SR'], transform_config['hcqt_shallow']['HOP_LENGTH']
     elif args.transform_type == 'cqt_shallow':
         sr, hl = transform_config['cqt_shallow']['SR'], transform_config['cqt_shallow']['HOP_LENGTH']
+    elif args.transform_type == 'logfilt_adsr_baseline':
+        sr, hl = transform_config['logfilt_adsr_baseline']['SR'], transform_config['logfilt_adsr_baseline']['HOP_SIZE']
     return sr, hl
 
 
@@ -290,7 +325,7 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
 
             sr, hl = _get_sr_and_hl(config['TRANSFORMS'], args)
             np_input = _transform_track(config, args, wav_path)
-            np_output = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
+            np_output, _, _ = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
 
             ### Sanity Check ###
             print np_input.shape
@@ -314,6 +349,72 @@ def _transform_wavs(cur_dat_num, dir_type, wav_paths, config, args, paths):
         dat_num += 1
 
     return dat_num
+
+
+def _transform_wavs_adsr(cur_dat_num, dir_type, wav_paths, config, args, paths):
+    dat_num = cur_dat_num
+    for dat_file in wav_paths:
+        total_wavs = len(dat_file)
+        cur_wav = 1
+        inputs, yFroms, yOns, yOffs = [], [], [], []
+        for wav_path in dat_file:
+            midi_path = wav_path.split('.wav')[0] + '.mid'
+
+            print "Processing " + wav_path
+
+            sr, hl = _get_sr_and_hl(config['TRANSFORMS'], args)
+            np_input = _transform_track(config, args, wav_path)
+            np_yFrom, midi, times = _generate_expected(config, midi_path, np_input.shape[0], sr, hl)
+            onsets_midi = _generate_midi_onsets(midi, times[1])
+            offsets_midi = _generate_midi_offsets(midi, times[1])
+            np_yOn = _generate_adsr_ys(config, onsets_midi, times, sr)
+            np_yOff = _generate_adsr_ys(config, offsets_midi, times, sr)
+
+
+            ### Sanity Check ###
+            print np_input.shape
+            print np_yFrom.shape
+            print "Dat Num: " + str(dat_num) + ". File " + str(cur_wav) + "/" + str(total_wavs)
+            cur_wav += 1
+
+            inputs.append(np_input)
+            yOns.append(np_yOn)
+            yFroms.append(np_yFrom)
+            yOffs.append(np_yOff)
+
+        inputs = np.concatenate(inputs)
+        yFroms = np.concatenate(yFroms)
+        yOns = np.concatenate(yOns)
+        yOffs = np.concatenate(yOffs)
+
+        input_path = os.path.join(paths[dir_type], str(dat_num) + '.dat')
+        yFroms_path = os.path.join(paths['expect_yFroms'], str(dat_num) + '.dat')
+        yOns_path = os.path.join(paths['expect_yOns'], str(dat_num) + '.dat')
+        yOffs_path = os.path.join(paths['expect_yOffs'], str(dat_num) + '.dat')
+
+        wrangler.save_mm(input_path, inputs)
+        wrangler.save_mm(yFroms_path, yFroms)
+        wrangler.save_mm(yOns_path, yOns)
+        wrangler.save_mm(yOffs_path, yOffs)
+
+        dat_num += 1
+
+    return dat_num
+
+
+def _preprocess_config2_adsr(config, args, paths, id):
+    # Fetch .wav paths
+    train_wav_paths, test_wav_paths = wrangler.fetch_config2_paths(config, args)
+    # Shuffle
+    np.random.shuffle(train_wav_paths)
+    np.random.shuffle(test_wav_paths)
+
+    print "\nProcessing Training Files.\n"
+
+    # Transform wavs and save
+    cur_dat_num = 0
+    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
 def _preprocess_config2(config, args, paths, id):
@@ -340,8 +441,8 @@ def _preprocess_config2(config, args, paths, id):
 
     # Transform wavs and save
     cur_dat_num = 0
-    cur_dat_num = _transform_wavs(cur_dat_num, 'train', train_wav_paths, config, args, paths)
-    _transform_wavs(cur_dat_num, 'test', test_wav_paths, config, args, paths)
+    cur_dat_num = _transform_wavs_adsr(cur_dat_num, 'train', train_wav_paths, config, args, paths)
+    _transform_wavs_adsr(cur_dat_num, 'test', test_wav_paths, config, args, paths)
 
 
 def _preprocess_config1_fold_3(config, args, paths, id):
@@ -391,5 +492,9 @@ def run(config, args, dataset_id):
         _preprocess_config2(config, args, dataset_paths, dataset_id)
     elif args.dataset_config == 'maps_config1_fold_3':
         _preprocess_config1_fold_3(config, args, dataset_paths, dataset_id)
+    elif args.dataset_config == 'maps_config2_adsr':
+        # Add specific dirs for ADSRNet
+        dataset_paths = wrangler.create_adsr_expect_dirs(dataset_paths)
+        _preprocess_config2_adsr(config, args, dataset_paths, dataset_id)
     else:
         print 'ERROR: ' + args.dataset_config + ' doesn\'t exist.'
