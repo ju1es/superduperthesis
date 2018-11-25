@@ -19,7 +19,7 @@ CONFIG = {
         'logfilt_shallow' : {
                 'NUM_BANDS' : 48,
                 'NUM_CHANNELS' : 1,
-                'SR' : 44100,
+                'SR' : 22050,
                 'UNIQUE_FILTERS' : True,
                 'NORM_FILTERS' : True,
                 'FRAME_SIZE' : 4096,
