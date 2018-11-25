@@ -116,7 +116,7 @@ def load_logfilt_shallow_mm(data_dir, type, ID):
 
     # CQT
     # 48 = nb, 384
-    # 36 = nb,
+    # 36 = nb, 288
 
     input_path = os.path.join(data_dir, type, ID)
     output_path = os.path.join(data_dir, 'expect', ID)
