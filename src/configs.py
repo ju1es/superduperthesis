@@ -17,7 +17,7 @@ CONFIG = {
     },
     'TRANSFORMS' : {
         'logfilt_shallow' : {
-                'NUM_BANDS' : 48,
+                'NUM_BANDS' : 36,
                 'NUM_CHANNELS' : 1,
                 'SR' : 22050,
                 'UNIQUE_FILTERS' : True,
