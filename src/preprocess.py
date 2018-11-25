@@ -209,6 +209,7 @@ def _cqt_shallow(config, track_path):
         bins_per_octave=config['BINS_PER_OCTAVE'])
 
     # Normalize
+    cqt = np.abs(cqt)
     cqt = lr.util.normalize(cqt, norm=np.inf)
 
     return cqt.T
