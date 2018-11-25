@@ -224,7 +224,7 @@ def run(config, args, dataset_id, experiment_id):
 
         print "Saved results at " + results_file_path
 
-    elif dataset_id == 'maps_config1_fold_3_logfilt_shallow':
+    elif dataset_id == 'maps_config1_fold_3_logfilt_shallow' or dataset_id == 'maps_config1_fold_3_cqt_shallow':
         datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
 
