@@ -228,8 +228,10 @@ def _transform_track(config, args, track_path):
 def _get_sr_and_hl(transform_config, args):
     sr = 0
     hl = 0
-    if args.transform_type == 'logfilt' or args.transform_type == 'logfilt_shallow':
+    if args.transform_type == 'logfilt':
         sr, hl = transform_config['logfilt']['SR'], transform_config['logfilt']['HOP_SIZE']
+    elif args.transform_type == 'logfilt_shallow':
+        sr, hl = transform_config['logfilt_shallow']['SR'], transform_config['logfilt_shallow']['HOP_SIZE']
     elif args.transform_type == 'hcqt':
         sr, hl = transform_config['hcqt']['SR'], transform_config['hcqt']['HOP_LENGTH']
     elif args.transform_type == 'hcqt_shallow':
