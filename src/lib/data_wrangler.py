@@ -267,7 +267,7 @@ def fetch_config2_fold_1_paths(config, args):
 
     for some_file in os.listdir(test_dir):
         if some_file.endswith('.wav'):
-            wav_path = os.path.join(root_dir, some_file)
+            wav_path = os.path.join(test_dir, some_file)
             test_wav_paths.append(wav_path)
 
     return train_wav_paths, test_wav_paths
