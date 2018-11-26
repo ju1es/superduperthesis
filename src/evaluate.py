@@ -121,7 +121,7 @@ def run(config, args, dataset_id, experiment_id):
         model.load_weights(weights)
         model.compile(
             loss={'yOn': 'binary_crossentropy', 'yFrom': 'binary_crossentropy', 'yOff': 'binary_crossentropy'},
-            optimizer=SGD(lr=config['LR'], momentum=config['MOMENTUM']),
+            optimizer=SGD(lr=0.1, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
 
 
