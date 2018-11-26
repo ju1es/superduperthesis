@@ -255,7 +255,7 @@ def fetch_config2_paths(config, args):
 
 def fetch_config2_fold_1_paths(config, args):
     root_dir = config['MAPS_CONFIG2_FOLD_1']
-    test_dir = config['DATASET_CONFIGS']['maps_config2_fold_1_adsr']['test']
+    test_dir = os.path.join(config['DATASET_CONFIGS']['MAPS_CONFIG2'], 'test')
 
     train_wav_paths = []
     test_wav_paths = []
