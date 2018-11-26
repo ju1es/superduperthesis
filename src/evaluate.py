@@ -145,7 +145,7 @@ def run(config, args, dataset_id, experiment_id):
 
         predictions = model.predict(X, verbose=1)
 
-        p, r, f, a = prf_framewise(eval_framewise(predictions[1], yFroms, thres=0.5))
+        p, r, f, a = prf_framewise(eval_framewise(predictions[1], yFroms, thresh=0.5))
         print '\n precision, recall, accuracy, f_measure'
         print p, r, a, f
 
