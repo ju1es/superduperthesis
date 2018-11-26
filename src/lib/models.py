@@ -39,43 +39,44 @@ def hcqt_conv(input_shape):
     return Model(inputs=inputs, outputs=outputs)
 
 
-def adsr_conv(input_shape):
+def adsr_conv(input_shape=(11, 144)):
     # Init stack
-    inputs = Input(shape=input_shape)
-    c1 = Conv2D(30, (3, 3), activation='elu')(inputs)
+    inputs = Input(shape=input_shape, name='main_input')
+    reshape = Reshape((11, 144, 1))(inputs)
+    c1 = Conv2D(30, (3, 3), activation='elu')(reshape)
     gd1 = GaussianDropout(0.1)(c1)
     gn1 = GaussianNoise(0.1)(gd1)
 
-    c2 = Conv2D(10, (1, 35))(gn1)
+    c2 = Conv2D(30, (1, 35), activation='elu')(gn1)
     gd2 = GaussianDropout(0.1)(c2)
     gn2 = GaussianNoise(0.1)(gd2)
 
-    c3 = Conv2D(30, (7, 1))(gn2)
+    c3 = Conv2D(30, (7, 1), activation='elu')(gn2)
     gd3 = GaussianDropout(0.1)(c3)
-    gn3 = GaussianDropout(0.1)(gd3)
+    gn3 = GaussianNoise(0.1)(gd3)
 
     # y-on
     c4 = Conv2D(10, (3, 3), activation='elu')(gn3)
     gd4 = GaussianDropout(0.5)(c4)
     gn4 = GaussianNoise(0.1)(gd4)
     f1 = Flatten()(gn4)
-    yOn = Dense(88, input_dim=1060,  activation='sigmoid')(f1)
+    yOn = Dense(88, activation='sigmoid', name='yOn')(f1)
 
     # y-frm
     c5 = Conv2D(10, (3, 3), activation='elu')(gn3)
     gd5 = GaussianDropout(0.5)(c5)
     gn5 = GaussianNoise(0.1)(gd5)
     f2 = Flatten()(gn5)
-    yFrm = Dense(88, input_dim=1060,  activation='sigmoid')(f2)
+    yFrom = Dense(88, activation='sigmoid', name='yFrom')(f2)
 
     # y-off
     c6 = Conv2D(10, (3, 3), activation='elu')(gn3)
     gd6 = GaussianDropout(0.5)(c6)
     gn6 = GaussianNoise(0.1)(gd6)
     f3 = Flatten()(gn6)
-    yOff = Dense(88, input_dim=1060,  activation='sigmoid')(f3)
+    yOff = Dense(88, activation='sigmoid', name='yOff')(f3)
 
-    return Model(inputs=inputs, outputs=[yOn, yFrm, yOff])
+    return Model(inputs=inputs, outputs=[yOn, yFrom, yOff])
 
 
 

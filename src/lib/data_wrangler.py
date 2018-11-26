@@ -40,6 +40,7 @@ def save_training_results(history, experiment_results_dir, experiment_id, model)
     print "Results in:\n"
     print experiment_results_dir
 
+
 def create_split_dirs(dataset_id):
     """
     Creates specific preprocessed dataset directories.
@@ -123,6 +124,29 @@ def load_logfilt_mm(data_dir, type, ID):
     output = np.reshape(mm_output, (-1, NOTE_RANGE))
 
     return input, output
+
+
+def load_logfilt_adsr_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    WINDOW_SIZE = 11
+    N_BINS = 144
+
+    input_path = os.path.join(data_dir, type, ID)
+    yOns_path = os.path.join(data_dir, 'expect/yOns/', ID)
+    yFroms_path = os.path.join(data_dir, 'expect/yFroms/', ID)
+    yOffs_path = os.path.join(data_dir, 'expect/yOffs/', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_yOn = np.memmap(yOns_path, mode='r', dtype=D_TYPE)
+    mm_yFrom = np.memmap(yFroms_path, mode='r', dtype=D_TYPE)
+    mm_yOff = np.memmap(yOffs_path, mode='r', dtype=D_TYPE)
+
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS))
+    yOn = np.reshape(mm_yOn, (-1, NOTE_RANGE))
+    yFrom = np.reshape(mm_yFrom, (-1, NOTE_RANGE))
+    yOff = np.reshape(mm_yOff, (-1, NOTE_RANGE))
+
+    return input, yOn, yFrom, yOff
 
 
 def load_logfilt_shallow_mm(data_dir, type, ID):

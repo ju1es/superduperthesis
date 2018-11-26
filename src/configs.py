@@ -135,7 +135,17 @@ CONFIG = {
                 'MOMENTUM' : 0.9
             }
         },
-        'hcqt-conv-checkpoint' : True
+        'hcqt-conv-checkpoint' : True,
+        'adsr_net_baseline' : {
+            'TRAIN' : {
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 256,
+                'LR' : 0.1,
+                'HALVING_N_EPOCHS' : 5,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'adsr_net_baseline-checkpoint' : True # For Evaluation
     }
     # 'MODE' : {
     #     'PREPROCESS' : {
