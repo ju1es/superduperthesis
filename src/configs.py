@@ -2,7 +2,7 @@ CONFIG = {
     'MIN_MIDI' : 21,
     'MAX_MIDI' : 108,
     'DATASET_DIR' : 'datasets/maps/',
-    'MAPS_CONFIG2' : 'datasets/maps_config2/',
+    'MAPS_CONFIG2_FOLD_1' : 'datasets/maps_config2/fold_1/',
     'MAPS_SUBSET_CONFIG2' : 'datasets/maps_subset_config2/',
     'MAPS_CONFIG1_FOLD_3' : 'datasets/maps_config1/fold_3/',
     'DATASET_CONFIGS' : {
@@ -15,7 +15,7 @@ CONFIG = {
         'maps_config1_fold_3' : {
                 'test' : ['test']
         },
-        'maps_config2_adsr' : {
+        'maps_config2_fold_1_adsr' : {
                 'test' : ['test']
         }
     },

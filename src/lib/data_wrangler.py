@@ -226,16 +226,16 @@ def fetch_config2_paths(config, args):
         root_dir = config['DATASET_DIR']
     elif args.dataset_config == 'maps_subset_config2':
         root_dir = config['MAPS_SUBSET_CONFIG2']
-    elif args.dataset_config == 'maps_config2_adsr':
-        root_dir = config['MAPS_CONFIG2']
+    elif args.dataset_config == 'maps_config2_fold_1_adsr':
+        root_dir = config['MAPS_CONFIG2_FOLD_1']
 
     test_dirs = ""
     if args.dataset_config == 'config-2':
         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
     elif args.dataset_config == 'maps_subset_config2':
         test_dirs = config['DATASET_CONFIGS']['maps_subset_config2']['test']
-    elif args.dataset_config == 'maps_config2_adsr':
-        test_dirs = config['DATASET_CONFIGS']['maps_config2_adsr']['test']
+    elif args.dataset_config == 'maps_config2_fold_1_adsr':
+        test_dirs = config['DATASET_CONFIGS']['MAPS_CONFIG2_FOLD_1']['test']
 
 
     for subdir_name in os.listdir(root_dir):
