@@ -226,16 +226,13 @@ def fetch_config2_paths(config, args):
         root_dir = config['DATASET_DIR']
     elif args.dataset_config == 'maps_subset_config2':
         root_dir = config['MAPS_SUBSET_CONFIG2']
-    elif args.dataset_config == 'maps_config2_fold_1_adsr':
-        root_dir = config['MAPS_CONFIG2_FOLD_1']
+
 
     test_dirs = ""
     if args.dataset_config == 'config-2':
         test_dirs = config['DATASET_CONFIGS']['config-2']['test']
     elif args.dataset_config == 'maps_subset_config2':
         test_dirs = config['DATASET_CONFIGS']['maps_subset_config2']['test']
-    elif args.dataset_config == 'maps_config2_fold_1_adsr':
-        test_dirs = config['DATASET_CONFIGS']['maps_config2_fold_1_adsr']['test']
 
 
     for subdir_name in os.listdir(root_dir):
@@ -253,6 +250,25 @@ def fetch_config2_paths(config, args):
                             test_wav_paths.append(wav_path)
                         else:
                             train_wav_paths.append(wav_path)
+
+    return train_wav_paths, test_wav_paths
+
+def fetch_config2_fold_1_paths(config, args):
+    root_dir = config['MAPS_CONFIG2_FOLD_1']
+    test_dir = config['DATASET_CONFIGS']['maps_config2_fold_1_adsr']['test']
+
+    train_wav_paths = []
+    test_wav_paths = []
+
+    for some_file in os.listdir(root_dir):
+        if some_file.endswith('.wav'):
+            wav_path = os.path.join(root_dir, some_file)
+            train_wav_paths.append(wav_path)
+
+    for some_file in os.listdir(test_dir):
+        if some_file.endswith('.wav'):
+            wav_path = os.path.join(root_dir, some_file)
+            test_wav_paths.append(wav_path)
 
     return train_wav_paths, test_wav_paths
 
