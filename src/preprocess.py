@@ -25,6 +25,7 @@ def _logfilt(config, track_path):
     :param track_path: str - path of track to transform.
     :return: np array - transformed track.
     """
+    print "NB:" + str(config['NUM_BANDS']) + ". FS:" + str(config['FRAME_SIZE']) + ". FFT:" + str(config['FFT_SIZE']) + ". FMAX:" + str(config['FMAX'])
     log_spect = mm.audio.spectrogram.LogarithmicFilteredSpectrogram(
         track_path,
         num_bands=config['NUM_BANDS'],
