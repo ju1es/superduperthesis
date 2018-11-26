@@ -125,7 +125,7 @@ def run(config, args, dataset_id, experiment_id):
             metrics=['accuracy', 'mse', 'mae'])
 
 
-    if dataset_id == 'maps_config2_adsr_logfilt_adsr_baseline':
+    if dataset_id == 'maps_config2_fold_1_adsr_logfilt_adsr_baseline':
         # Load test set
         datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
         test_datapoints = os.listdir(datapoints_path)
