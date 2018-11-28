@@ -42,7 +42,7 @@ def hcqt_conv(input_shape):
 def adsr_conv(input_shape=(11, 144)):
     # Init stack
     inputs = Input(shape=input_shape, name='main_input')
-    reshape = Reshape((11, 144, 1))(inputs)
+    reshape = Reshape((11, 229, 1))(inputs)
     c1 = Conv2D(30, (3, 3), activation='elu')(reshape)
     gd1 = GaussianDropout(0.1)(c1)
     gn1 = GaussianNoise(0.1)(gd1)
