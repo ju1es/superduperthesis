@@ -56,19 +56,19 @@ CONFIG = {
         },
         'logfilt_adsr_baseline' : {
                 'WINDOW_SIZE' : 11,
-                'NUM_BANDS' : 48,
+                'NUM_BANDS' : 24,
                 'NUM_CHANNELS' : 1,
                 'SR' : 44100,
                 'UNIQUE_FILTERS' : True,
                 'NORM_FILTERS' : True,
                 'FRAME_SIZE' : 4096,
                 'FFT_SIZE' : 4096,
-                'FMIN' : 27.5,
-                'FMAX' : 8000.0,
+                'FMIN' : 30.0,
+                'FMAX' : 10000.0,
                 'FREF' : 440.0,
-                'FPS' : 100,
+                'FPS' : 50,
                 'CIRC_SHIFT' : False,
-                'HOP_SIZE' : 441.0,
+                'HOP_SIZE' : 882.0,
                 'NORM' : True
         },
         # Gets you 144 bins
@@ -158,8 +158,8 @@ CONFIG = {
         'adsr_net_baseline' : {
             'TRAIN' : {
                 'EPOCHS' : 50,
-                'BATCH_SIZE' : 256,
-                'LR' : 0.1,
+                'BATCH_SIZE' : 64,
+                'LR' : 0.05,
                 'HALVING_N_EPOCHS' : 5,
                 'MOMENTUM' : 0.9
             }
