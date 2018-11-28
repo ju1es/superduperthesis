@@ -114,7 +114,7 @@ def run(config, args, dataset_id, experiment_id):
             optimizer=SGD(lr=0.1, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'adsr_net_baseline':
-        model = m.adsr_conv(input_shape=(11, 229))
+        model = m.adsr_conv(input_shape=(11, 144))
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')

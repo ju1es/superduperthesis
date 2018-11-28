@@ -17,7 +17,7 @@ from lib import errors as e
 from lib import models as m
 from lib.HalfDecay import HalfDecay
 from lib.DataGenerator import DataGenerator
-from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger, ReduceLROnPlateau
 from keras.optimizers import SGD
 
 SPLITS_DIR = 'splits/'
@@ -58,7 +58,7 @@ def run(config, args, dataset_id, experiment_id):
     elif args.model == 'hcqt_shallow_net':
         model = m.hcqt_shallow_net(input_shape=(72, 6))
     elif args.model == 'adsr_net_baseline':
-        model = m.adsr_conv(input_shape=(11, 229))
+        model = m.adsr_conv(input_shape=(11, 144))
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
@@ -120,7 +120,7 @@ def run(config, args, dataset_id, experiment_id):
         # Compile
         model.compile(
             loss={'yOn':'binary_crossentropy', 'yFrom':'binary_crossentropy', 'yOff':'binary_crossentropy'},
-            optimizer=SGD(lr=config['LR'], momentum=config['MOMENTUM']),
+            optimizer=SGD(lr=config['LR'], momentum=config['MOMENTUM'], nesterov=True),
             metrics=['accuracy', 'mse', 'mae'])
 
         # Fetch train wav paths
@@ -144,7 +144,6 @@ def run(config, args, dataset_id, experiment_id):
 
 
         # Callbacks
-        decay = HalfDecay(config['LR'], config['HALVING_N_EPOCHS']) # 10 halving according to Rainer ICASSP18
         csv_logger = CSVLogger(RESULTS_DIR + experiment_id + "/"+ experiment_id + ".log")
         checkpoint = ModelCheckpoint(
                     RESULTS_DIR + experiment_id + "/"+ experiment_id + "_checkpoint.h5",
@@ -152,14 +151,14 @@ def run(config, args, dataset_id, experiment_id):
                     verbose=1,
                     save_best_only=True,
                     mode='min')
-        early_stopping = EarlyStopping(patience=5, monitor='val_loss', verbose=1, mode='min')
-
+        early_stopping = EarlyStopping(patience=12, monitor='val_loss', verbose=1, mode='min')
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=10)
         history = model.fit(
                     X,
                     {"yOn": yOns, "yFrom": yFroms, "yOff": yOffs},
                     epochs=config['EPOCHS'],
                     batch_size=config['BATCH_SIZE'], # 8 according to Rainer ICASSP18
-                    callbacks=[decay, checkpoint, early_stopping, csv_logger],
+                    callbacks=[reduce_lr, checkpoint, early_stopping, csv_logger],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)
 

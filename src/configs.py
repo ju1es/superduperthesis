@@ -160,7 +160,6 @@ CONFIG = {
                 'EPOCHS' : 50,
                 'BATCH_SIZE' : 64,
                 'LR' : 0.05,
-                'HALVING_N_EPOCHS' : 5,
                 'MOMENTUM' : 0.9
             }
         },

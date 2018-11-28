@@ -129,7 +129,7 @@ def load_logfilt_mm(data_dir, type, ID):
 def load_logfilt_adsr_mm(data_dir, type, ID):
     NOTE_RANGE = 88
     WINDOW_SIZE = 11
-    N_BINS = 229 # 144
+    N_BINS = 144
 
     input_path = os.path.join(data_dir, type, ID)
     yOns_path = os.path.join(data_dir, 'expect/yOns/', ID)
