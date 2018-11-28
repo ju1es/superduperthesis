@@ -58,7 +58,7 @@ def run(config, args, dataset_id, experiment_id):
     elif args.model == 'hcqt_shallow_net':
         model = m.hcqt_shallow_net(input_shape=(72, 6))
     elif args.model == 'adsr_net_baseline':
-        model = m.adsr_conv(input_shape=(11, 144))
+        model = m.adsr_conv(input_shape=(11, 229))
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
