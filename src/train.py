@@ -116,7 +116,7 @@ def run(config, args, dataset_id, experiment_id):
         wrangler.save_training_results(history, experiment_results_dir, experiment_id, model)
 
     elif args.model == 'adsr_net_baseline':
-        config = config['MODELS']['baseline']['TRAIN']
+        config = config['MODELS']['adsr_net_baseline']['TRAIN']
         # Compile
         model.compile(
             loss={'yOn':'binary_crossentropy', 'yFrom':'binary_crossentropy', 'yOff':'binary_crossentropy'},
