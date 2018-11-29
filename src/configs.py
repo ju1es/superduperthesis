@@ -16,7 +16,7 @@ CONFIG = {
         'maps_config1_fold_3' : {
                 'test' : ['test']
         },
-        'maps_config2_fold_1_adsr' : {
+        'maps_config2_adsr' : {
                 'test' : ['test']
         }
     },

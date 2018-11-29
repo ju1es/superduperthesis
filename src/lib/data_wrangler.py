@@ -253,16 +253,16 @@ def fetch_config2_paths(config, args):
 
     return train_wav_paths, test_wav_paths
 
-def fetch_config2_fold_1_paths(config, args):
-    root_dir = config['MAPS_CONFIG2_FOLD_1']
+def fetch_config2_adsr_paths(config, args):
+    train_dir = os.path.join(config['MAPS_CONFIG2'], 'train')
     test_dir = os.path.join(config['MAPS_CONFIG2'], 'test')
 
     train_wav_paths = []
     test_wav_paths = []
 
-    for some_file in os.listdir(root_dir):
+    for some_file in os.listdir(train_dir):
         if some_file.endswith('.wav'):
-            wav_path = os.path.join(root_dir, some_file)
+            wav_path = os.path.join(train_dir, some_file)
             train_wav_paths.append(wav_path)
 
     for some_file in os.listdir(test_dir):

@@ -405,7 +405,7 @@ def _transform_wavs_adsr(cur_dat_num, dir_type, wav_paths, config, args, paths):
 
 def _preprocess_config2_adsr(config, args, paths, id):
     # Fetch .wav paths
-    train_wav_paths, test_wav_paths = wrangler.fetch_config2_fold_1_paths(config, args)
+    train_wav_paths, test_wav_paths = wrangler.fetch_config2_adsr_paths(config, args)
 
     # Shuffle
     np.random.shuffle(train_wav_paths)
@@ -498,7 +498,7 @@ def run(config, args, dataset_id):
         _preprocess_config2(config, args, dataset_paths, dataset_id)
     elif args.dataset_config == 'maps_config1_fold_3':
         _preprocess_config1_fold_3(config, args, dataset_paths, dataset_id)
-    elif args.dataset_config == 'maps_config2_fold_1_adsr':
+    elif args.dataset_config == 'maps_config2_adsr':
         # Add specific dirs for ADSRNet
         dataset_paths = wrangler.create_adsr_expect_dirs(dataset_paths)
         _preprocess_config2_adsr(config, args, dataset_paths, dataset_id)
