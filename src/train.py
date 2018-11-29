@@ -117,6 +117,7 @@ def run(config, args, dataset_id, experiment_id):
 
     elif args.model == 'adsr_net_baseline':
         config = config['MODELS']['adsr_net_baseline']['TRAIN']
+        print "LR:" + str(config['LR']) + ". Batch_size:" + str(config['BATCH_SIZE'])
         # Compile
         model.compile(
             loss={'yOn':'binary_crossentropy', 'yFrom':'binary_crossentropy', 'yOff':'binary_crossentropy'},
