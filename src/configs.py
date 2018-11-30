@@ -98,7 +98,7 @@ CONFIG = {
                 'HOP_LENGTH' : 256
         },
         'hcqt' : {
-                'WINDOW_SIZE' : 5,
+                'WINDOW_SIZE' : 11,
                 'BINS_PER_OCTAVE' : 60,
                 'N_OCTAVES' : 6,
                 'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
