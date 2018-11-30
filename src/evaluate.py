@@ -158,6 +158,39 @@ def run(config, args, dataset_id, experiment_id):
 
         print "Saved results at " + results_file_path
 
+    elif dataset_id == 'maps_config2_adsr_hcqt':
+        # Load test set
+        datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')
+        test_datapoints = os.listdir(datapoints_path)
+
+        X, yOns, yFroms, yOffs = [], [], [], []
+        for dat_file in test_datapoints:
+            input, yOn, yFrom, yOff = wrangler.load_hcqt_adsr_mm(MODEL_SPLIT_DIR, 'test', dat_file)
+            X.append(input)
+            yOns.append(yOn)
+            yFroms.append(yFrom)
+            yOffs.append(yOff)
+
+        X = np.concatenate(X)
+        yOns = np.concatenate(yOns)
+        yFroms = np.concatenate(yFroms)
+        yOffs = np.concatenate(yOffs)
+
+        predictions = model.predict(X, verbose=1)
+
+        p, r, f, a = prf_framewise(eval_framewise(predictions[1], yFroms, thresh=0.5))
+        print '\n precision, recall, accuracy, f_measure'
+        print p, r, a, f
+
+        # Save
+        results_file_path = os.path.join(MODEL_RESULTS_DIR, 'results.txt')
+        with open(results_file_path, 'w') as results_file:
+            results_file.write("Framewise Evaluation\n")
+            results_file.write("precision recall f_measure accuracy\n")
+            results_file.write(str(p) + " " + str(r) + " " + str(f) + " " + str(a))
+
+        print "Saved results at " + results_file_path
+
     elif dataset_id == 'config-2_logfilt':
         # Load test set
         datapoints_path = os.path.join(SPLITS_DIR, dataset_id, 'test')

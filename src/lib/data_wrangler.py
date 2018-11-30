@@ -191,6 +191,29 @@ def load_hcqt_mm(data_dir, type, ID):
 
     return input, output
 
+def load_hcqt_adsr_mm(data_dir, type, ID):
+    NOTE_RANGE = 88
+    WINDOW_SIZE = 3
+    N_BINS = 360
+    HARMONICS = 6
+
+    input_path = os.path.join(data_dir, type, ID)
+    yOns_path = os.path.join(data_dir, 'expect/yOns/', ID)
+    yFroms_path = os.path.join(data_dir, 'expect/yFroms/', ID)
+    yOffs_path = os.path.join(data_dir, 'expect/yOffs/', ID)
+
+    mm_input = np.memmap(input_path, mode='r', dtype=D_TYPE)
+    mm_yOn = np.memmap(yOns_path, mode='r', dtype=D_TYPE)
+    mm_yFrom = np.memmap(yFroms_path, mode='r', dtype=D_TYPE)
+    mm_yOff = np.memmap(yOffs_path, mode='r', dtype=D_TYPE)
+
+    input = np.reshape(mm_input, (-1, WINDOW_SIZE, N_BINS, HARMONICS))
+    yOn = np.reshape(mm_yOn, (-1, NOTE_RANGE))
+    yFrom = np.reshape(mm_yFrom, (-1, NOTE_RANGE))
+    yOff = np.reshape(mm_yOff, (-1, NOTE_RANGE))
+
+    return input, yOn, yFrom, yOff
+
 
 def load_hcqt_shallow_mm(data_dir, type, ID):
     NOTE_RANGE = 88

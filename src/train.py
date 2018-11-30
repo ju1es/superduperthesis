@@ -59,6 +59,8 @@ def run(config, args, dataset_id, experiment_id):
         model = m.hcqt_shallow_net(input_shape=(72, 6))
     elif args.model == 'adsr_net_baseline':
         model = m.adsr_conv(input_shape=(11, 144))
+    elif args.model == 'hcqt_adsr_net':
+        model = m.hcqt_adsr_conv(input_shape=(3, 360, 6))
     else:
         print "ERROR: MODEL DOESN\'T EXIST!"
         sys.exit()
@@ -159,6 +161,61 @@ def run(config, args, dataset_id, experiment_id):
                     {"yOn": yOns, "yFrom": yFroms, "yOff": yOffs},
                     epochs=config['EPOCHS'],
                     batch_size=config['BATCH_SIZE'], # 8 according to Rainer ICASSP18
+                    callbacks=[reduce_lr, checkpoint, early_stopping, csv_logger],
+                    validation_split=VAL_PERCENTAGE,
+                    verbose=1)
+
+        # Save
+        # -> acc, val_acc plot
+        # -> loss, val_loss plot
+        # -> model history
+        # -> weights
+        wrangler.save_training_results(history, experiment_results_dir, experiment_id, model)
+
+    elif args.model == 'hcqt_adsr_net':
+        config = config['MODELS']['hcqt_adsr_net']['TRAIN']
+        print "LR:" + str(config['LR']) + ". Batch_size:" + str(config['BATCH_SIZE'])
+        # Compile
+        model.compile(
+            loss={'yOn':'binary_crossentropy', 'yFrom':'binary_crossentropy', 'yOff':'binary_crossentropy'},
+            optimizer=SGD(lr=config['LR'], momentum=config['MOMENTUM'], nesterov=True),
+            metrics=['accuracy', 'mse', 'mae'])
+
+        # Fetch train wav paths
+        dataset_dir = os.path.join(SPLITS_DIR, dataset_id)
+        train_datapoints = os.listdir(os.path.join(dataset_dir, 'train'))
+
+        # Load datapoints for .fit()
+        X, yOns, yFroms, yOffs = [], [], [], []
+        for dat_file in train_datapoints:
+            input, yOn, yFrom, yOff = wrangler.load_hcqt_adsr_mm(dataset_dir, 'train', dat_file)
+
+            X.append(input)
+            yOns.append(yOn)
+            yFroms.append(yFrom)
+            yOffs.append(yOff)
+
+        X = np.concatenate(X)
+        yOns = np.concatenate(yOns)
+        yFroms = np.concatenate(yFroms)
+        yOffs = np.concatenate(yOffs)
+
+
+        # Callbacks
+        csv_logger = CSVLogger(RESULTS_DIR + experiment_id + "/"+ experiment_id + ".log")
+        checkpoint = ModelCheckpoint(
+                    RESULTS_DIR + experiment_id + "/"+ experiment_id + "_checkpoint.h5",
+                    monitor='val_loss',
+                    verbose=1,
+                    save_best_only=True,
+                    mode='min')
+        early_stopping = EarlyStopping(patience=12, monitor='val_loss', verbose=1, mode='min')
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=10)
+        history = model.fit(
+                    X,
+                    {"yOn": yOns, "yFrom": yFroms, "yOff": yOffs},
+                    epochs=config['EPOCHS'],
+                    batch_size=config['BATCH_SIZE'],
                     callbacks=[reduce_lr, checkpoint, early_stopping, csv_logger],
                     validation_split=VAL_PERCENTAGE,
                     verbose=1)

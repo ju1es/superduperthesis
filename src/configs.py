@@ -98,7 +98,7 @@ CONFIG = {
                 'HOP_LENGTH' : 256
         },
         'hcqt' : {
-                'WINDOW_SIZE' : 11,
+                'WINDOW_SIZE' : 3,
                 'BINS_PER_OCTAVE' : 60,
                 'N_OCTAVES' : 6,
                 'HARMONICS' : [0.5, 1, 2, 3, 4, 5],
@@ -163,7 +163,16 @@ CONFIG = {
                 'MOMENTUM' : 0.9
             }
         },
-        'adsr_net_baseline-checkpoint' : True # For Evaluation
+        'adsr_net_baseline-checkpoint' : True, # For Evaluation
+        'hcqt_adsr_net' : {
+            'TRAIN' : {
+                'EPOCHS' : 50,
+                'BATCH_SIZE' : 64,
+                'LR' : 0.05,
+                'MOMENTUM' : 0.9
+            }
+        },
+        'hcqt_adsr_net-checkpoint' : True # For Evaluation
     }
     # 'MODE' : {
     #     'PREPROCESS' : {
