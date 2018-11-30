@@ -12,7 +12,7 @@ import pretty_midi as pm
 import numpy as np
 from lib import data_wrangler as wrangler
 
-NUM_DAT_FILES = 10
+NUM_DAT_FILES = 16
 
 # Hack for PPQ from MAPS
 pm.pretty_midi.MAX_TICK = 1e10
