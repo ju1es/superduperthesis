@@ -123,6 +123,16 @@ def run(config, args, dataset_id, experiment_id):
             loss={'yOn': 'binary_crossentropy', 'yFrom': 'binary_crossentropy', 'yOff': 'binary_crossentropy'},
             optimizer=SGD(lr=0.05, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
+    elif args.model == 'hcqt_adsr_net':
+        model = m.adsr_conv(input_shape=(3, 360, 6))
+        weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
+        if not os.path.isfile(weights):
+            weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
+        model.load_weights(weights)
+        model.compile(
+            loss={'yOn': 'binary_crossentropy', 'yFrom': 'binary_crossentropy', 'yOff': 'binary_crossentropy'},
+            optimizer=SGD(lr=0.05, momentum=0.9),
+            metrics=['accuracy', 'mse', 'mae'])
 
 
     if dataset_id == 'maps_config2_adsr_logfilt_adsr_baseline':
