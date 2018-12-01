@@ -83,7 +83,7 @@ def hcqt_adsr_conv(input_shape):
     # HCQT dims
     inputs = Input(shape=(3, 360, 6), name='main_input')
 
-    c1 = Conv2D(30, (1, 1), activation='elu')(inputs)
+    c1 = Conv2D(30, (3, 3), padding='same', activation='elu')(inputs)
     gd1 = GaussianDropout(0.1)(c1)
     gn1 = GaussianNoise(0.1)(gd1)
 
