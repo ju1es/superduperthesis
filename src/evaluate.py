@@ -124,7 +124,7 @@ def run(config, args, dataset_id, experiment_id):
             optimizer=SGD(lr=0.05, momentum=0.9),
             metrics=['accuracy', 'mse', 'mae'])
     elif args.model == 'hcqt_adsr_net':
-        model = m.adsr_conv(input_shape=(3, 360, 6))
+        model = m.hcqt_adsr_conv(input_shape=(3, 360, 6))
         weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '.h5')
         if not os.path.isfile(weights):
             weights = os.path.join(MODEL_RESULTS_DIR, experiment_id + '_checkpoint.h5')
