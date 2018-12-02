@@ -91,26 +91,26 @@ def hcqt_adsr_conv(input_shape):
     gd2 = GaussianDropout(0.1)(c2)
     gn2 = GaussianNoise(0.1)(gd2)
 
-    c3 = Conv2D(30, (3, 1), activation='elu', padding='same')(gn2)
-    gd3 = GaussianDropout(0.1)(c3)
-    gn3 = GaussianNoise(0.1)(gd3)
+    # c3 = Conv2D(30, (3, 1), activation='elu', padding='same')(gn2)
+    # gd3 = GaussianDropout(0.1)(c3)
+    # gn3 = GaussianNoise(0.1)(gd3)
 
     # y-on
-    c4 = Conv2D(10, (3, 3), activation='elu')(gn3)
+    c4 = Conv2D(10, (3, 3), activation='elu')(gn2)
     gd4 = GaussianDropout(0.5)(c4)
     gn4 = GaussianNoise(0.1)(gd4)
     f1 = Flatten()(gn4)
     yOn = Dense(88, activation='sigmoid', name='yOn')(f1)
 
     # y-frm
-    c5 = Conv2D(10, (3, 3), activation='elu')(gn3)
+    c5 = Conv2D(10, (3, 3), activation='elu')(gn2)
     gd5 = GaussianDropout(0.5)(c5)
     gn5 = GaussianNoise(0.1)(gd5)
     f2 = Flatten()(gn5)
     yFrom = Dense(88, activation='sigmoid', name='yFrom')(f2)
 
     # y-off
-    c6 = Conv2D(10, (3, 3), activation='elu')(gn3)
+    c6 = Conv2D(10, (3, 3), activation='elu')(gn2)
     gd6 = GaussianDropout(0.5)(c6)
     gn6 = GaussianNoise(0.1)(gd6)
     f3 = Flatten()(gn6)
