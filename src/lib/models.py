@@ -87,7 +87,7 @@ def hcqt_adsr_conv(input_shape):
     gd1 = GaussianDropout(0.1)(c1)
     gn1 = GaussianNoise(0.1)(gd1)
 
-    c2 = Conv2D(30, (1, 48), activation='elu')(gn1)
+    c2 = Conv2D(30, (1, 36), activation='elu')(gn1)
     gd2 = GaussianDropout(0.1)(c2)
     gn2 = GaussianNoise(0.1)(gd2)
 
